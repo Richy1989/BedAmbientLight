@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Ambient Bed Light</title>
+</head>
+<body>
+    <h1>Ambient Bed Light</h1>
+
+    <form method='POST' action='saveWifi'>
+        <fieldset>
+            <legend>Wireless configuration</legend>
+            Ssid:
+            <br>
+            <select name="ssid">
+                {ssid}
+            </select>
+            <br>
+            Password:
+            <br>
+            <input type="text" name="password" value="">
+            <br>
+            <input type="submit" value="Save WiFi Settings">
+        </fieldset>
+    </form>
+
+    <form method='POST' action='/saveMqtt'>
+        <fieldset>
+            <legend>MQTT Configuration</legend>
+            Server:
+            <br>
+            <input type="text" name="mqttServer" value="">
+            <br>
+            Port:
+            <br>
+            <input type="text" name="mqttPort" value="">
+            <br>
+            Username:
+            <br>
+            <input type="text" name="mqttUsername" value="">
+            <br>
+            Password:
+            <br>
+            <input type="text" name="mqttPassword" value="">
+            <br>
+            <input type="submit" value="Save MQTT Settings">
+        </fieldset>
+    </form>
+
+    <br>
+    <div class="center-message">
+        <b>{message}</b>
+    </div>
+</body>
+</html>
