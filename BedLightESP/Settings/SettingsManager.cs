@@ -72,6 +72,8 @@ namespace BedLightESP.Settings
                     var settings = (AppSettings)JsonConvert.DeserializeObject(json, typeof(AppSettings));
                     Settings = settings;
                     Logger.Info($"Settings read.");
+                    json.Close();
+                    json.Dispose();
                     return;
                 }
             }
