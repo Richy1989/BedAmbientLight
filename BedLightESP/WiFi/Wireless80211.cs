@@ -5,7 +5,6 @@
 
 using System;
 using System.Device.Wifi;
-using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Threading;
 using BedLightESP.LogManager;
@@ -56,6 +55,7 @@ namespace BedLightESP.WiFi
                 }
 
                 Logger.Info($"Connected to WiFi {GetConfiguration().Ssid} - {WifiNetworkHelper.WifiAdapter}");
+                Logger.Info($"IP Address: {GetInterface().IPv4Address}"); 
             }
             else
             {
@@ -85,15 +85,15 @@ namespace BedLightESP.WiFi
         public static bool Configure(string ssid, string password)
         {
             // Make sure we are disconnected before we start connecting otherwise
-            // ConnectDhcp will just return success instead of reconnecting.
+            // ConnectDHCP will just return success instead of reconnecting.
             WifiAdapter wa = WifiAdapter.FindAllAdapters()[0];
             wa.Disconnect();
 
             CancellationTokenSource cs = new(30_000);
-            Console.WriteLine("ConnectDHCP");
+            Logger.Debug("ConnectDHCP");
             WifiNetworkHelper.Disconnect();
 
-            // Reconfigure properly the normal wifi
+            // Reconfigure properly the normal WiFi
             Wireless80211Configuration wconf = GetConfiguration();
             wconf.Options = Wireless80211Configuration.ConfigurationOptions.AutoConnect | Wireless80211Configuration.ConfigurationOptions.Enable;
             wconf.Ssid = ssid;
@@ -111,7 +111,7 @@ namespace BedLightESP.WiFi
                 // Bug in network helper, we've most likely try to connect before, let's make it manual
                 var res = wa.Connect(ssid, WifiReconnectionKind.Automatic, password);
                 success = res.ConnectionStatus == WifiConnectionStatus.Success;
-                Console.WriteLine($"Connected: {res.ConnectionStatus}");
+                Logger.Debug($"Connected: {res.ConnectionStatus}");
             }
 
             return success;
@@ -124,7 +124,6 @@ namespace BedLightESP.WiFi
         public static Wireless80211Configuration GetConfiguration()
         {
             NetworkInterface ni = GetInterface();
-            
             return Wireless80211Configuration.GetAllWireless80211Configurations()[ni.SpecificConfigId];
         }
 

@@ -10,6 +10,9 @@ using System.Device.Wifi;
 using System.Collections;
 using System.Diagnostics;
 using BedLightESP.LogManager;
+using BedLightESP.WiFi;
+using BedLightESP.Settings;
+using System.Threading;
 
 namespace BedLightESP.Manager.WebManager
 {
@@ -64,14 +67,20 @@ namespace BedLightESP.Manager.WebManager
 
             returnPage = StringHelper.ReplaceMessage(returnPage, networkEntries.ToString(), "ssid");
 
+            var settings = SettingsManager.Settings;
+            returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttServer, "mqttServer");
+            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.MqttPort}", "mqttPort");
+            returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttUsername, "mqttUsername");
+            returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttPassword, "mqttPassword");
+
             WebServer.OutPutStream(e.Context.Response, returnPage);
         }
 
-        [Route("saveWifi")]
+        [Route("save_wifi")]
         [Method("POST")]
-        public void SelectSettings(WebServerEventArgs e)
+        public void PostSetWiFiSettings(WebServerEventArgs e)
         {
-            Debug.WriteLine(e.Context.Request.RawUrl);
+            Logger.Debug(e.Context.Request.RawUrl);
 
             Hashtable hashPars = WebHelper.ParseParamsFromStream(e.Context.Request.InputStream);
             
@@ -85,8 +94,45 @@ namespace BedLightESP.Manager.WebManager
                 return;
             }
 
+            try
+            {
+                Wireless80211.Configure(ssid, password);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error setting wireless parameters: {ex.Message}");
+                PrintDefaultPage(e, $"Error setting wireless parameters: {ex.Message}");
+                return;
+            }
+
             Logger.Info($"Wireless parameters SSID:{ssid} PASSWORD:{password}");
             PrintDefaultPage(e, $"Set wireless parameters SSID: {ssid} PASSWORD: {password}");
+        }
+
+        [Route("save_mqtt")]
+        [Method("POST")]
+        public void PostSetMQTTSettings(WebServerEventArgs e)
+        {
+            Logger.Debug(e.Context.Request.RawUrl);
+
+            Hashtable hashPars = WebHelper.ParseParamsFromStream(e.Context.Request.InputStream);
+
+            var user = (string)hashPars["mqttUsername"];
+            var password = (string)hashPars["mqttPassword"];
+            var server = (string)hashPars["mqttServer"];
+            var port = (string)hashPars["mqttPort"];
+
+            var settings = SettingsManager.Settings;
+            settings.MqttPort = int.Parse(port);
+            settings.MqttServer = server;
+            settings.MqttUsername = user;
+            settings.MqttPassword = password;
+
+            //Start a new thread to write the settings
+            new Thread(() => { SettingsManager.WriteSettings(); } ).Start();
+
+            Logger.Info("MQTT settings received.");
+            PrintDefaultPage(e, $"MQTT Server: {server} configured");
         }
     }
 }

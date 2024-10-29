@@ -10,7 +10,7 @@
 <body>
     <h1>Ambient Bed Light</h1>
 
-    <form method='POST' action='saveWifi'>
+    <form method='POST' action='save_wifi'>
         <fieldset>
             <legend>Wireless configuration</legend>
             Ssid:
@@ -27,24 +27,24 @@
         </fieldset>
     </form>
 
-    <form method='POST' action='/saveMqtt'>
+    <form method='POST' action='save_mqtt'>
         <fieldset>
             <legend>MQTT Configuration</legend>
             Server:
             <br>
-            <input type="text" name="mqttServer" value="">
+            <input type="text" name="mqttServer" value="{mqttServer}">
             <br>
             Port:
             <br>
-            <input type="text" name="mqttPort" value="">
+            <input type="text" name="mqttPort" value="{mqttPort}">
             <br>
             Username:
             <br>
-            <input type="text" name="mqttUsername" value="">
+            <input type="text" name="mqttUsername" value="{mqttUsername}">
             <br>
             Password:
             <br>
-            <input type="text" name="mqttPassword" value="">
+            <input type="text" name="mqttPassword" value="{mqttPassword}">
             <br>
             <input type="submit" value="Save MQTT Settings">
         </fieldset>

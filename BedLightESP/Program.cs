@@ -8,8 +8,8 @@ using BedLightESP.LED;
 using BedLightESP.LogManager;
 using BedLightESP.Manager;
 using BedLightESP.Manager.WebManager;
+using BedLightESP.Settings;
 using BedLightESP.WiFi;
-using nanoFramework.Networking;
 
 namespace BedLightESP
 {
@@ -19,8 +19,8 @@ namespace BedLightESP
     public class Program
     {
         public static WifiAvailableNetwork[] AvailableNetworks { get; set; }
-     
-        private static WebManager _server = new ();
+
+        private static WebManager _server;
         private static bool _wifiApMode = false;
         private static int _connectedCount = 0;
 
@@ -31,9 +31,15 @@ namespace BedLightESP
         {
             Logger.Info("Hello from nanoFramework!");
 
+            //Initialize Settings Manager
+            SettingsManager.LoadSettings();
+
+            //Initialize Web Server
+            _server = new();
+
+            //Initialize Touch Manager
             GpioController gpio = new();
             TouchManager touchManager = new(gpio);
-
 
             //For Debugging only use 10 LEDs
             int ledCount = 58;
@@ -44,8 +50,9 @@ namespace BedLightESP
             //Start LED Manager
             _ = new LEDManager(ledCount, touchManager);
 
-           WifiAdapter wifi = WifiAdapter.FindAllAdapters()[0];
+            WifiAdapter wifi = WifiAdapter.FindAllAdapters()[0];
 
+            // Start WiFi scan
             try
             {
                 Logger.Info("Starting Wi-Fi scan");
@@ -78,10 +85,14 @@ namespace BedLightESP
             //// Signal successful startup with blue onboard LED
             ////gpio.OpenPin(2, PinMode.Output);
             ////gpio.Write(2, PinValue.High);
-
             Thread.Sleep(Timeout.Infinite);
         }
 
+        /// <summary>
+        /// Event handler for when available Wi-Fi networks are changed.
+        /// </summary>
+        /// <param name="sender">The Wi-Fi adapter that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private static void Wifi_AvailableNetworksChanged(WifiAdapter sender, object e)
         {
             Logger.Info("WiFi Networks Scanned!");
@@ -133,6 +144,5 @@ namespace BedLightESP
                 }
             }
         }
-
     }
 }
