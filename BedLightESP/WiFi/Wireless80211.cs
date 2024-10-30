@@ -1,9 +1,4 @@
-﻿//
-// Copyright (c) .NET Foundation and Contributors
-// See LICENSE file in the project root for full license information.
-//
-
-using System;
+﻿using System;
 using System.Device.Wifi;
 using System.Net.NetworkInformation;
 using System.Threading;
@@ -127,6 +122,13 @@ namespace BedLightESP.WiFi
             return Wireless80211Configuration.GetAllWireless80211Configurations()[ni.SpecificConfigId];
         }
 
+        /// <summary>
+        /// Gets the network interface for the wireless 802.11 connection.
+        /// </summary>
+        /// <returns>
+        /// Returns the <see cref="NetworkInterface"/> object representing the wireless 802.11 interface.
+        /// If no wireless 802.11 interface is found, returns null.
+        /// </returns>
         public static NetworkInterface GetInterface()
         {
             NetworkInterface[] Interfaces = NetworkInterface.GetAllNetworkInterfaces();

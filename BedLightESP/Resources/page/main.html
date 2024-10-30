@@ -44,15 +44,31 @@
             <br>
             Password:
             <br>
-            <input type="text" name="mqttPassword" value="{mqttPassword}">
+            <div class="password-div-container">
+                <div class="box">
+                    <input type="password" id="mqttPassword" name="mqttPassword" placeholder="Password" value="{mqttPassword}">
+                    <div class="showpassword_box"><input type="checkbox" id="togglePassword"><p>Show password</p></div>
+                </div>
+            </div>
             <br>
             <input type="submit" value="Save MQTT Settings">
-        </fieldset>
+</fieldset>
     </form>
 
     <br>
     <div class="center-message">
         <b>{message}</b>
     </div>
+
+    <script>
+        document.getElementById('togglePassword').addEventListener('change', function() {
+            var passwordField = document.getElementById('mqttPassword');
+            if (this.checked) {
+                passwordField.type = 'text';
+            } else {
+                passwordField.type = 'password';
+            }
+        });
+    </script>
 </body>
 </html>

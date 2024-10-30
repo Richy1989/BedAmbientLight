@@ -11,9 +11,16 @@ namespace BedLightESP.Settings
     /// </summary>
     public class SettingsManager
     {
+        /// <summary>
+        /// The path to the configuration file.
+        /// </summary>
         private static readonly string _configFile = "I:\\configuration.json";
 
+        /// <summary>
+        /// Gets or sets the application settings.
+        /// </summary>
         public static AppSettings Settings { get; set; } = new AppSettings();
+
         /// <summary>
         /// Gets a value indicating whether the configuration file exists.
         /// </summary>
@@ -51,7 +58,7 @@ namespace BedLightESP.Settings
 
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Error($"Error saving settings: {ex.Message}");
                 return false;
@@ -87,7 +94,5 @@ namespace BedLightESP.Settings
             // Return default settings if file does not exist or an error occurred
             Settings = new AppSettings();
         }
-
-
     }
 }
