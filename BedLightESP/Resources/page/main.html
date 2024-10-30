@@ -21,7 +21,12 @@
             <br>
             Password:
             <br>
-            <input type="text" name="password" value="">
+            <div class="password-div-container">
+                <div class="box">
+                    <input type="password" id="ssidPassword" name="password" placeholder="Password">
+                    <div class="showpassword_box"><input type="checkbox" id="toggleSSIDPassword"><p>Show password</p></div>
+                </div>
+            </div>
             <br>
             <input type="submit" value="Save WiFi Settings">
         </fieldset>
@@ -47,7 +52,7 @@
             <div class="password-div-container">
                 <div class="box">
                     <input type="password" id="mqttPassword" name="mqttPassword" placeholder="Password" value="{mqttPassword}">
-                    <div class="showpassword_box"><input type="checkbox" id="togglePassword"><p>Show password</p></div>
+                    <div class="showpassword_box"><input type="checkbox" id="toggleMQTTPassword"><p>Show password</p></div>
                 </div>
             </div>
             <br>
@@ -61,8 +66,17 @@
     </div>
 
     <script>
-        document.getElementById('togglePassword').addEventListener('change', function() {
+            document.getElementById('toggleMQTTPassword').addEventListener('change', function() {
             var passwordField = document.getElementById('mqttPassword');
+            if (this.checked) {
+                passwordField.type = 'text';
+            } else {
+                passwordField.type = 'password';
+            }
+        });
+            
+            document.getElementById('toggleSSIDPassword').addEventListener('change', function() {
+            var passwordField = document.getElementById('ssidPassword');
             if (this.checked) {
                 passwordField.type = 'text';
             } else {
