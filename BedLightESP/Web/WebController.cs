@@ -9,13 +9,20 @@ using BedLightESP.Settings;
 using BedLightESP.WiFi;
 using nanoFramework.WebServer;
 
-namespace BedLightESP.Manager.WebManager
+namespace BedLightESP.Web
 {
     /// <summary>
     /// WebController class handles various web routes and their corresponding actions.
     /// </summary>
-    public class WebController
+    internal class WebController
     {
+        private readonly ISettingsManager SettingsManager;
+
+        public WebController(ISettingsManager settingsManager)
+        {
+            this.SettingsManager = settingsManager;
+        }
+
         /// <summary>
         /// Handles the request for the favicon.
         /// </summary>
@@ -82,7 +89,7 @@ namespace BedLightESP.Manager.WebManager
 
             var settings = SettingsManager.Settings;
 
-            returnPage = StringHelper.ReplaceMessage(returnPage, ColorHelper.ColorToHex(ColorHelper.WarmWhite), "default_color");
+            returnPage = StringHelper.ReplaceMessage(returnPage, SettingsManager.Settings.DefaultColor, "default_color");
 
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttServer, "mqttServer");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.MqttPort}", "mqttPort");

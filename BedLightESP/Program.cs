@@ -1,53 +1,52 @@
-using System;
+﻿using System;
 using System.Device.Gpio;
 using System.Device.Wifi;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Threading;
+using BedLightESP.LED;
 using BedLightESP.Logging;
-using BedLightESP.Manager;
-using BedLightESP.Manager.WebManager;
 using BedLightESP.Settings;
+using BedLightESP.Touch;
+using BedLightESP.Web;
 using BedLightESP.WiFi;
+using Microsoft.Extensions.DependencyInjection;
+using nanoFramework.Hardware.Esp32;
 
 namespace BedLightESP
 {
-    /// <summary>
-    /// The main program class for the BedLightESP application.
-    /// </summary>
-    public class Program
+    internal class Program
     {
         public static WifiAvailableNetwork[] AvailableNetworks { get; set; }
 
-        private static WebManager _server;
+        private static IWebManager _server;
         private static bool _wifiApMode = false;
         private static int _connectedCount = 0;
 
-        /// <summary>
-        /// The entry point of the application.
-        /// </summary>
         public static void Main()
         {
-            Logger.Info("Hello from nanoFramework!");
+            Debug.WriteLine("Hello from Bed Ambient Light!");
 
-            //Initialize Settings Manager
-            SettingsManager.LoadSettings();
+            ServiceProvider services = ConfigureServices();
+
+            //Load the settings
+            ISettingsManager settingsManager = services.GetRequiredService(typeof(ISettingsManager)) as ISettingsManager;
+            settingsManager.LoadSettings();
+
+            //Load the LED manager
+            ILedManager ledManager = services.GetRequiredService(typeof(ILedManager)) as ILedManager;
+
+            var gpio = services.GetRequiredService(typeof(GpioController)) as GpioController;
             
-            //Initialize Touch Manager
-            GpioController gpio = new();
-            TouchManager touchManager = new(gpio);
-
             //For Debugging only use 10 LEDs
-            int ledCount = SettingsManager.Settings.LedCount; //58;
             gpio.OpenPin(32, PinMode.Input);
             if (gpio.Read(32) == PinValue.High)
-                ledCount = 10;
+                ledManager.CreateLEDDevice(10);
+            else
+                ledManager.CreateLEDDevice(settingsManager.Settings.LedCount);
 
-            //Start LED Manager
-            _ = new LEDManager(ledCount, touchManager);
-
-            //Initialize Web Server
-            _server = new();
+            //Load the web server
+            _server = services.GetRequiredService(typeof(IWebManager)) as IWebManager;
 
             WifiAdapter wifi = WifiAdapter.FindAllAdapters()[0];
 
@@ -79,13 +78,25 @@ namespace BedLightESP
             NetworkChange.NetworkAPStationChanged += NetworkChange_NetworkAPStationChanged;
 
             // Set up the AvailableNetworksChanged event to pick up when scan has completed
-            wifi.AvailableNetworksChanged += Wifi_AvailableNetworksChanged; ;
+            wifi.AvailableNetworksChanged += Wifi_AvailableNetworksChanged;
 
-            //// Signal successful startup with blue onboard LED
-            ////gpio.OpenPin(2, PinMode.Output);
-            ////gpio.Write(2, PinValue.High);
             Thread.Sleep(Timeout.Infinite);
         }
+
+        /// <summary>Configure the Dependency Injection Services</summary>
+        private static ServiceProvider ConfigureServices()
+        {
+            return new ServiceCollection()
+                //.AddSingleton(typeof())
+                .AddSingleton(typeof(GpioController))
+                .AddSingleton(typeof(ISettingsManager), typeof(SettingsManager))
+                .AddSingleton(typeof(ITouchManager), typeof(TouchManager))
+                .AddSingleton(typeof(ILedManager), typeof(LEDManager))
+                .AddSingleton(typeof(IWebManager), typeof(WebManager))
+                .AddSingleton(typeof(ISettingsManager), typeof(SettingsManager))
+                .BuildServiceProvider();
+        }
+
 
         /// <summary>
         /// Event handler for when available Wi-Fi networks are changed.

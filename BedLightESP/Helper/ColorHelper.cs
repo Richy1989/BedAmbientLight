@@ -6,8 +6,6 @@ namespace BedLightESP.Helper
 {
     internal class ColorHelper
     {
-        public static Color WarmWhite => HexToColor(SettingsManager.Settings.DefaultColor);
-
         public static string ColorToHex(Color color)
         {
             string value =  $"#{color.R:X2}{color.G:X2}{color.B:X2}";

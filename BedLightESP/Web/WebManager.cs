@@ -3,20 +3,27 @@ using System.Threading;
 using BedLightESP.Logging;
 using nanoFramework.WebServer;
 
-namespace BedLightESP.Manager.WebManager
+namespace BedLightESP.Web
 {
     /// <summary>
     /// Manages the web server for the BedLightESP application.
     /// </summary>
-    internal class WebManager
+    internal class WebManager : IWebManager
     {
-        private WebServer server;
-        //private readonly ManualResetEvent waitHandle = new(false);
+        private WebServerDI server;
+        private IServiceProvider ServiceProvider { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the web server is running.
         /// </summary>
         public bool IsRunning { get; private set; }
+
+        /// <summary>Initializes a new instance of the <see cref="WebManager"/> class.</summary>
+        /// <param name="serviceProvider">The service provider.</param>
+        public WebManager(IServiceProvider serviceProvider)
+        {
+            ServiceProvider = serviceProvider;
+        }
 
         /// <summary>
         /// Starts the web server if it is not already running.
@@ -25,18 +32,14 @@ namespace BedLightESP.Manager.WebManager
         {
             if (IsRunning) return;
 
-            //new Thread(() =>
-            //{
-                server = new(80, HttpProtocol.Http, new Type[] { typeof(WebController) });
+            new Thread(() =>
+            {
+                server = new(80, HttpProtocol.Http, new Type[] { typeof(WebController) }, ServiceProvider);
                 server.Start();
                 Logger.Debug("Web server started.");
                 IsRunning = true;
-            //    waitHandle.WaitOne();
-            //    Logger.Debug("Web server stopped.");
-            //    IsRunning = false;
-            //}).Start();
-
-            Thread.Sleep(Timeout.Infinite);
+                Thread.Sleep(Timeout.Infinite);
+            }).Start();
         }
 
         /// <summary>
@@ -49,14 +52,6 @@ namespace BedLightESP.Manager.WebManager
         {
             Logger.Debug("Stopping web server.");
             server.Stop();
-            //new Thread(() =>
-            //{
-            //    while (server.IsRunning && !new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token.IsCancellationRequested)
-            //    {
-            //        Thread.Sleep(TimeSpan.FromMilliseconds(10));
-            //    }
-            //    waitHandle.Set();
-            //}).Start();
             IsRunning = false;
         }
     }

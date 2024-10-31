@@ -5,21 +5,25 @@ using BedLightESP.Enumerations;
 using BedLightESP.EventArgsHelper;
 using BedLightESP.Logging;
 
-namespace BedLightESP.Manager
+namespace BedLightESP.Touch
 {
     /// <summary>
     /// Button Pressed Event Handler
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    public delegate void ButtonPressedEventHandler(object sender, ButtonPressEventArgs e);
+    internal delegate void ButtonPressedEventHandler(object sender, ButtonPressEventArgs e);
 
     /// <summary>
     /// Represents a touch manager that handles touch events for buttons.
     /// </summary>
-    internal class TouchManager
+    /// <remarks>
+    /// This class manages the touch events for left and right buttons using GPIO pins.
+    /// It handles single and double touch events, including continuous touches.
+    /// </remarks>
+    internal class TouchManager : ITouchManager
     {
-        // Event to be raised when a button is pressed
+        // Event handler for button press events
         public event ButtonPressedEventHandler ButtonPressed;
 
         private const int ButtonLeftPin = 34; // GPIO pin number for the touch sensor

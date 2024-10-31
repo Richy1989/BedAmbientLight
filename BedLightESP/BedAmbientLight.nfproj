@@ -25,13 +25,18 @@
     <Compile Include="Helper\StringHelper.cs" />
     <Compile Include="Helper\WebHelper.cs" />
     <Compile Include="LED\APA102Controller.cs" />
-    <Compile Include="Manager\LEDManager.cs" />
+    <Compile Include="LED\ILedManager.cs" />
+    <Compile Include="Settings\ISettingsManager.cs" />
+    <Compile Include="Touch\ITouchManager.cs" />
+    <Compile Include="Web\IWebManager.cs" />
+    <Compile Include="LED\LedManager.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Enumerations\ButtonPosition.cs" />
     <Compile Include="Enumerations\ClickType.cs" />
-    <Compile Include="Manager\TouchManager.cs" />
-    <Compile Include="Manager\WebManager\WebController.cs" />
-    <Compile Include="Manager\WebManager\WebManager.cs" />
+    <Compile Include="Touch\TouchManager.cs" />
+    <Compile Include="Web\WebController.cs" />
+    <Compile Include="Web\WebManager.cs" />
+    <Compile Include="Web\WebManagerDI.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.Designer.cs">
@@ -53,6 +58,9 @@
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>..\packages\nanoFramework.CoreLibrary.1.15.5\lib\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="nanoFramework.DependencyInjection">
+      <HintPath>..\packages\nanoFramework.DependencyInjection.1.1.3\lib\nanoFramework.DependencyInjection.dll</HintPath>
     </Reference>
     <Reference Include="nanoFramework.Graphics.Core">
       <HintPath>..\packages\nanoFramework.Graphics.Core.1.2.22\lib\nanoFramework.Graphics.Core.dll</HintPath>

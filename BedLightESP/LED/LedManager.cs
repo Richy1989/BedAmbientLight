@@ -3,29 +3,31 @@ using System.Drawing;
 using BedLightESP.Enumerations;
 using BedLightESP.EventArgsHelper;
 using BedLightESP.Helper;
-using BedLightESP.LED;
 using BedLightESP.Logging;
+using BedLightESP.Settings;
+using BedLightESP.Touch;
 using nanoFramework.Hardware.Esp32;
 
-namespace BedLightESP.Manager
+namespace BedLightESP.LED
 {
-    internal class LEDManager
+    internal class LEDManager : ILedManager
     {
-        private APA102Controller apa102;
-        private readonly TouchManager touchManager;
+        private readonly ITouchManager touchManager;
+        private readonly ISettingsManager settingsManager;
         private bool leftIsOn = false;
         private bool rightIsOn = false;
         private bool wholeIsOn = false;
+        private APA102Controller apa102;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LEDManager"/> class.
         /// </summary>
         /// <param name="length">The length of the LED strip.</param>
         /// <param name="touchManager">The touch manager.</param>
-        public LEDManager(int length, TouchManager touchManager)
+        public LEDManager(ITouchManager touchManager, ISettingsManager settingsManager)
         {
-            CreateLEDDevice(length);
             this.touchManager = touchManager;
+            this.settingsManager = settingsManager;
             this.touchManager.ButtonPressed += OnButtonPressed;
         }
 
@@ -148,15 +150,17 @@ namespace BedLightESP.Manager
         /// <param name="e">The event arguments.</param>
         private void OnButtonPressed(object sender, ButtonPressEventArgs e)
         {
+            Color defaultColor = ColorHelper.HexToColor(settingsManager.Settings.DefaultColor);
+
             if (e.ButtonPosition == ButtonPosition.Left)
             {
                 if (e.ClickType.Equals(ClickType.Single))
                 {
-                    TurnOnLEDStripOneColor(LedStripSide.Left, ColorHelper.WarmWhite);
+                    TurnOnLEDStripOneColor(LedStripSide.Left, defaultColor);
                 }
                 if (e.ClickType.Equals(ClickType.Double))
                 {
-                    TurnOnLEDStripOneColor(LedStripSide.Whole, ColorHelper.WarmWhite); // Fixed spelling error
+                    TurnOnLEDStripOneColor(LedStripSide.Whole, defaultColor); // Fixed spelling error
                 }
                 if (e.ClickType.Equals(ClickType.DoubleHold))
                 {
@@ -168,11 +172,11 @@ namespace BedLightESP.Manager
             {
                 if (e.ClickType.Equals(ClickType.Single))
                 {
-                    TurnOnLEDStripOneColor(LedStripSide.Right, ColorHelper.WarmWhite);
+                    TurnOnLEDStripOneColor(LedStripSide.Right, defaultColor);
                 }
                 if (e.ClickType.Equals(ClickType.Double))
                 {
-                    TurnOnLEDStripOneColor(LedStripSide.Whole, ColorHelper.WarmWhite); // Fixed spelling error
+                    TurnOnLEDStripOneColor(LedStripSide.Whole, defaultColor); // Fixed spelling error
                 }
                 if (e.ClickType.Equals(ClickType.DoubleHold))
                 {
