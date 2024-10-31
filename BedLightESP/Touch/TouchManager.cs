@@ -4,6 +4,7 @@ using System.Threading;
 using BedLightESP.Enumerations;
 using BedLightESP.EventArgsHelper;
 using BedLightESP.Logging;
+using BedLightESP.Settings;
 
 namespace BedLightESP.Touch
 {
@@ -26,14 +27,15 @@ namespace BedLightESP.Touch
         // Event handler for button press events
         public event ButtonPressedEventHandler ButtonPressed;
 
-        private const int ButtonLeftPin = 34; // GPIO pin number for the touch sensor
-        private const int ButtonRightPin = 35; // GPIO pin number for the touch sensor
-                                               // Constants for timing thresholds (in milliseconds)
+        private readonly int ButtonLeftPin; // GPIO pin number for the touch sensor / default 34 
+        private readonly int ButtonRightPin; // GPIO pin number for the touch sensor / default 35
+
         private const int DebounceDelay = 30;     // Debounce time
         private const int SingleTouchDelay = 300; // Maximum delay for a single touch
         private const int DoubleTouchDelay = 600; // Maximum delay for a single touch
 
         private readonly GpioController _gpioController;
+        private readonly ISettingsManager _settingsManager;
         private int _touchCount = 0;
         private DateTime _lastTouchTime;
         private bool _isInCheck = false;
@@ -43,10 +45,15 @@ namespace BedLightESP.Touch
         /// Initializes a new instance of the <see cref="TouchManager"/> class.
         /// </summary>
         /// <param name="_gpioController">The GPIO controller.</param>
-        public TouchManager(GpioController _gpioController)
+        public TouchManager(GpioController gpioController, ISettingsManager settingsManager)
         {
-            this._gpioController = _gpioController;
-            
+            this._gpioController = gpioController;
+            this._settingsManager = settingsManager;
+
+            // Initialize pins for left and right buttons
+            ButtonLeftPin = _settingsManager.Settings.LeftSidePin;
+            ButtonRightPin = _settingsManager.Settings.RightSidePin;
+
             // Initialize the GPIO pin
             _gpioController.OpenPin(ButtonLeftPin, PinMode.Input);
             _gpioController.OpenPin(ButtonRightPin, PinMode.Input);

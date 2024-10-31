@@ -48,5 +48,14 @@ namespace BedLightESP.Settings
         /// Gets or sets the number of LEDs.
         /// </summary>
         public int LedCount { get; set; } = 58;
+
+        /// <summary>
+        /// Gets or sets the GPIO pin number for the left side LEDs.
+        /// </summary>
+        public int LeftSidePin { get; set; } = 34;
+        /// <summary>
+        /// Gets or sets the GPIO pin number for the right side LEDs.
+        /// </summary>
+        public int RightSidePin { get; set; } = 35;
     }
 }

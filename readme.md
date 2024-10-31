@@ -58,28 +58,31 @@ Bed Ambient Light is a nanoFramework-based project designed to control an ambien
 	- Double Click (Any Button): Turn on the entire LED strip with with the default color.
 	- Double Click Hold (Any Button): Turn on the entire LED strip with a random gradient color.
 
-### File Structure
-
-- `BedLightESP/`: Main project directory.
-- `BedLightESP/Resources/page/`: Contains HTML and CSS files for the web interface.
-- `BedLightESP/Settings/`: Contains the settings classes.
-- `BedLightESP/Manager/WebManager/`: Contains the web server management classes.
-- `BedLightESP/WiFi/`: Contains the WiFi management classes.
-- `BedLightESP/MQTT/`: Contains the MQTT management classes.
-
 ## WebUI
 
 <img src="Documentation/screenshot/MainWenUI.png" width="200">
 
-### Contributing
+## Hardware Config
+
+Default Pin config. You can change the default in code, everything else can be configured in the WebUI. 
+
+- **SPI**:
+    - Pin 23 - MOSI
+	- Pin 18 - CLK
+- **GPIO**:
+    - Pin 32 - Debug Mode
+	- Pin 34 - Button Left Side
+	- Pin 35 - Button Right Side
+
+## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
 
-### License
+## License
 
 This project is licensed under the GPL-3.0 license. See the [LICENSE](LICENSE) file for details.
 
-### Acknowledgments
+## Acknowledgments
 
 - [nanoFramework](https://www.nanoframework.net/) for providing the framework for this project.
 - [ESP32](https://www.espressif.com/en/products/socs/esp32) for the hardware platform.
