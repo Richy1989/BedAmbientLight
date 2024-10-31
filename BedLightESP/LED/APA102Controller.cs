@@ -5,7 +5,6 @@ using System.Drawing;
 using BedLightESP.Settings;
 using nanoFramework.Hardware.Esp32;
 
-
 namespace BedLightESP.LED
 {
     /// <summary>
@@ -30,7 +29,6 @@ namespace BedLightESP.LED
 
         /// <summary>Indicates whether the object has been disposed.</summary>
         private bool disposed;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="APA102Controller"/> class.

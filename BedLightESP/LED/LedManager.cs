@@ -1,12 +1,10 @@
-﻿using System.Device.Spi;
-using System.Drawing;
+﻿using System.Drawing;
 using BedLightESP.Enumerations;
 using BedLightESP.EventArgsHelper;
 using BedLightESP.Helper;
 using BedLightESP.Logging;
 using BedLightESP.Settings;
 using BedLightESP.Touch;
-using nanoFramework.Hardware.Esp32;
 
 namespace BedLightESP.LED
 {
