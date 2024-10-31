@@ -4,7 +4,7 @@ using BedLightESP.Settings;
 
 namespace BedLightESP.Helper
 {
-    internal class ColorHelpler
+    internal class ColorHelper
     {
         public static Color WarmWhite => HexToColor(SettingsManager.Settings.DefaultColor);
 

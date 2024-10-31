@@ -20,7 +20,7 @@
   <ItemGroup>
     <Compile Include="Enumerations\LedStripSide.cs" />
     <Compile Include="EventArgsHelper\ButtonPressEventArgs.cs" />
-    <Compile Include="Helper\ColorHelpler.cs" />
+    <Compile Include="Helper\ColorHelper.cs" />
     <Compile Include="Helper\HLSColor.cs" />
     <Compile Include="Helper\StringHelper.cs" />
     <Compile Include="Helper\WebHelper.cs" />

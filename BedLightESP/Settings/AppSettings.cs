@@ -13,7 +13,7 @@ namespace BedLightESP.Settings
         public string MqttUsername { get; set; }
         public string MqttPassword { get; set; }
 
-        public string DefaultColor { get; set; } = ColorHelpler.ColorToHex(Color.FromArgb(239, 235, 216));
+        public string DefaultColor { get; set; } = ColorHelper.ColorToHex(Color.FromArgb(239, 235, 216));
 
         public void Clone(AppSettings app)
         {

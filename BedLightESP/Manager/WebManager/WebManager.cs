@@ -11,7 +11,7 @@ namespace BedLightESP.Manager.WebManager
     internal class WebManager
     {
         private WebServer server;
-        private readonly ManualResetEvent waitHandle = new(false);
+        //private readonly ManualResetEvent waitHandle = new(false);
 
         /// <summary>
         /// Gets a value indicating whether the web server is running.

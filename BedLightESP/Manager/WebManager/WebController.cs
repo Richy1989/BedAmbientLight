@@ -69,7 +69,7 @@ namespace BedLightESP.Manager.WebManager
 
             var settings = SettingsManager.Settings;
             
-            returnPage = StringHelper.ReplaceMessage(returnPage, ColorHelpler.ColorToHex(ColorHelpler.WarmWhite), "default_color");
+            returnPage = StringHelper.ReplaceMessage(returnPage, ColorHelper.ColorToHex(ColorHelper.WarmWhite), "default_color");
 
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttServer, "mqttServer");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.MqttPort}", "mqttPort");
@@ -150,7 +150,7 @@ namespace BedLightESP.Manager.WebManager
             try
             {
                 //Check if this does not throw exception
-                ColorHelpler.HexToColor(color);
+                ColorHelper.HexToColor(color);
                 settings.DefaultColor = color;
                 new Thread(() => { SettingsManager.WriteSettings(); }).Start();
             }

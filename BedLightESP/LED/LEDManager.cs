@@ -152,32 +152,32 @@ namespace BedLightESP.LED
             {
                 if (e.ClickType.Equals(ClickType.Single))
                 {
-                    TurnOnLEDStripOneColor(LedStripSide.Left, ColorHelpler.WarmWhite);
+                    TurnOnLEDStripOneColor(LedStripSide.Left, ColorHelper.WarmWhite);
                 }
                 if (e.ClickType.Equals(ClickType.Double))
                 {
-                    TurnOnLEDStripOneColor(LedStripSide.Whole, ColorHelpler.WarmWhite); // Fixed spelling error
+                    TurnOnLEDStripOneColor(LedStripSide.Whole, ColorHelper.WarmWhite); // Fixed spelling error
                 }
                 if (e.ClickType.Equals(ClickType.DoubleHold))
                 {
                     Logger.Info("Random Color!");
-                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelpler.CalculateRandomGradientHUE(apa102.Pixels.Length)); // Fixed spelling error
+                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelper.CalculateRandomGradientHUE(apa102.Pixels.Length)); // Fixed spelling error
                 }
             }
             else if (e.ButtonPosition == ButtonPosition.Right)
             {
                 if (e.ClickType.Equals(ClickType.Single))
                 {
-                    TurnOnLEDStripOneColor(LedStripSide.Right, ColorHelpler.WarmWhite);
+                    TurnOnLEDStripOneColor(LedStripSide.Right, ColorHelper.WarmWhite);
                 }
                 if (e.ClickType.Equals(ClickType.Double))
                 {
-                    TurnOnLEDStripOneColor(LedStripSide.Whole, ColorHelpler.WarmWhite); // Fixed spelling error
+                    TurnOnLEDStripOneColor(LedStripSide.Whole, ColorHelper.WarmWhite); // Fixed spelling error
                 }
                 if (e.ClickType.Equals(ClickType.DoubleHold))
                 {
                     Logger.Info("Random Color!");
-                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelpler.CalculateRandomGradientHUE(apa102.Pixels.Length)); // Fixed spelling error
+                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelper.CalculateRandomGradientHUE(apa102.Pixels.Length)); // Fixed spelling error
                 }
             }
 
