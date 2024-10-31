@@ -175,7 +175,7 @@ namespace BedLightESP.Manager
                 if ((DateTime.UtcNow - _lastTouchTime).TotalMilliseconds > SingleTouchDelay + DoubleTouchDelay)
                 {
                     // Fire an event every 300ms as long as the button is pressed
-                    Logger.Info($"Continious double touch detected: {positionOfLongClick}");
+                    Logger.Info($"Continuous double touch detected: {positionOfLongClick}");
                     ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.DoubleHold, DateTime.UtcNow));
                     Thread.Sleep(500);
                 }

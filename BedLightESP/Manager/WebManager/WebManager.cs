@@ -25,18 +25,18 @@ namespace BedLightESP.Manager.WebManager
         {
             if (IsRunning) return;
 
-            new Thread(() =>
-            {
+            //new Thread(() =>
+            //{
                 server = new(80, HttpProtocol.Http, new Type[] { typeof(WebController) });
                 server.Start();
                 Logger.Debug("Web server started.");
                 IsRunning = true;
-                waitHandle.WaitOne();
-                Logger.Debug("Web server stopped.");
-                IsRunning = false;
-            }).Start();
+            //    waitHandle.WaitOne();
+            //    Logger.Debug("Web server stopped.");
+            //    IsRunning = false;
+            //}).Start();
 
-            //Thread.Sleep(Timeout.Infinite);
+            Thread.Sleep(Timeout.Infinite);
         }
 
         /// <summary>
@@ -49,14 +49,15 @@ namespace BedLightESP.Manager.WebManager
         {
             Logger.Debug("Stopping web server.");
             server.Stop();
-            new Thread(() =>
-            {
-                while (server.IsRunning && !new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token.IsCancellationRequested)
-                {
-                    Thread.Sleep(TimeSpan.FromMilliseconds(10));
-                }
-                waitHandle.Set();
-            }).Start();
+            //new Thread(() =>
+            //{
+            //    while (server.IsRunning && !new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token.IsCancellationRequested)
+            //    {
+            //        Thread.Sleep(TimeSpan.FromMilliseconds(10));
+            //    }
+            //    waitHandle.Set();
+            //}).Start();
+            IsRunning = false;
         }
     }
 }

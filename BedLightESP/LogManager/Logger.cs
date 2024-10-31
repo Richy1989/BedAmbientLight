@@ -11,13 +11,14 @@ namespace BedLightESP.LogManager
         Debug
     }
 
+
     public static class Logger
     {
         public static void Log(LogLevel level, string message)
         {
             if (Debugger.IsAttached)
             {
-                string logMessage = $"{DateTime.UtcNow.ToString("o")} [{level}] {message}";
+                string logMessage = $"{DateTime.UtcNow.ToString("o")} [{GetLogLevelString(level)}] {message}";
                 System.Diagnostics.Debug.WriteLine(logMessage);
             }
         }
@@ -39,6 +40,30 @@ namespace BedLightESP.LogManager
         public static void Debug(string message)
         {
             Log(LogLevel.Debug, message);
+        }
+
+        private static string GetLogLevelString(LogLevel level)
+        {
+            if(level == LogLevel.Info)
+            {
+                return "INFO";
+            }
+            else if (level == LogLevel.Warning)
+            {
+                return "WARNING";
+            }
+            else if (level == LogLevel.Error)
+            {
+                return "ERROR";
+            }
+            else if (level == LogLevel.Debug)
+            {
+                return "DEBUG";
+            }
+            else
+            {
+                return "UNKNOWN";
+            }
         }
     }
 }
