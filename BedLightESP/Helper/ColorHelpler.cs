@@ -1,11 +1,38 @@
 ﻿using System;
 using System.Drawing;
+using BedLightESP.Settings;
 
 namespace BedLightESP.Helper
 {
     internal class ColorHelpler
     {
-        public static Color WarmWhite = Color.FromArgb(239, 235, 216);
+        public static Color WarmWhite => HexToColor(SettingsManager.Settings.DefaultColor);
+
+        public static string ColorToHex(Color color)
+        {
+            string value =  $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+            return value; 
+                
+        }
+
+        public static Color HexToColor(string hex)
+        {
+            if (hex.StartsWith("#"))
+            {
+                hex = hex.Substring(1);
+            }
+
+            if (hex.Length != 6)
+            {
+                throw new ArgumentException("Hex color code must be 6 characters long.");
+            }
+
+            int r = Convert.ToInt32(hex.Substring(0, 2), 16);
+            int g = Convert.ToInt32(hex.Substring(2, 2), 16);
+            int b = Convert.ToInt32(hex.Substring(4, 2), 16);
+
+            return Color.FromArgb(r, g, b);
+        }
 
         public static Color[] GenerateRandomColorGradient(int length)
         {

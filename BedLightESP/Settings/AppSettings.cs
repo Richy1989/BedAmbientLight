@@ -1,4 +1,6 @@
 using System;
+using System.Drawing;
+using BedLightESP.Helper;
 
 namespace BedLightESP.Settings
 {
@@ -10,6 +12,8 @@ namespace BedLightESP.Settings
         public int MqttPort { get; set; }
         public string MqttUsername { get; set; }
         public string MqttPassword { get; set; }
+
+        public string DefaultColor { get; set; } = ColorHelpler.ColorToHex(Color.FromArgb(239, 235, 216));
 
         public void Clone(AppSettings app)
         {

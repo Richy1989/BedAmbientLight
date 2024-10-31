@@ -68,6 +68,9 @@ namespace BedLightESP.Manager.WebManager
             returnPage = StringHelper.ReplaceMessage(returnPage, networkEntries.ToString(), "ssid");
 
             var settings = SettingsManager.Settings;
+            
+            returnPage = StringHelper.ReplaceMessage(returnPage, ColorHelpler.ColorToHex(ColorHelpler.WarmWhite), "default_color");
+
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttServer, "mqttServer");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.MqttPort}", "mqttPort");
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttUsername, "mqttUsername");
@@ -114,7 +117,6 @@ namespace BedLightESP.Manager.WebManager
         public void PostSetMQTTSettings(WebServerEventArgs e)
         {
             Logger.Debug(e.Context.Request.RawUrl);
-
             Hashtable hashPars = WebHelper.ParseParamsFromStream(e.Context.Request.InputStream);
 
             var user = (string)hashPars["mqttUsername"];
@@ -133,6 +135,34 @@ namespace BedLightESP.Manager.WebManager
 
             Logger.Info("MQTT settings received.");
             PrintDefaultPage(e, $"MQTT Server: {server} configured");
+        }
+
+        [Route("select_color")]
+        [Method("POST")]
+        public void PostSelectColorSettings(WebServerEventArgs e)
+        {
+            Logger.Debug(e.Context.Request.RawUrl);
+            Hashtable hashPars = WebHelper.ParseParamsFromStream(e.Context.Request.InputStream);
+
+            var color = (string)hashPars["color_selector"];
+
+            var settings = SettingsManager.Settings;
+            try
+            {
+                //Check if this does not throw exception
+                ColorHelpler.HexToColor(color);
+                settings.DefaultColor = color;
+                new Thread(() => { SettingsManager.WriteSettings(); }).Start();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error setting color: {ex.Message}");
+                PrintDefaultPage(e, $"Error setting color: {ex.Message}");
+                return;
+            }
+
+            Logger.Info($"Selected Color: {color}");
+            PrintDefaultPage(e, $"Set default color to: {color}");
         }
     }
 }

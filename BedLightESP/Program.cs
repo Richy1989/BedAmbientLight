@@ -33,14 +33,11 @@ namespace BedLightESP
 
             //Initialize Settings Manager
             SettingsManager.LoadSettings();
-
-            //Initialize Web Server
-            _server = new();
-
+            
             //Initialize Touch Manager
             GpioController gpio = new();
             TouchManager touchManager = new(gpio);
-
+            
             //For Debugging only use 10 LEDs
             int ledCount = 58;
             gpio.OpenPin(32, PinMode.Input);
@@ -49,6 +46,9 @@ namespace BedLightESP
 
             //Start LED Manager
             _ = new LEDManager(ledCount, touchManager);
+
+            //Initialize Web Server
+            _server = new();
 
             WifiAdapter wifi = WifiAdapter.FindAllAdapters()[0];
 

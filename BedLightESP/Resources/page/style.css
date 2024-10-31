@@ -8,6 +8,10 @@ body {
     font-family: Arial, sans-serif;
 }
 
+#color_selector {
+    padding: 0px 2px 0px 2px;
+}
+
 h1,
 legend {
     text-align: center;
