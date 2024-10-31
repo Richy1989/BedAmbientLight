@@ -8,7 +8,7 @@ Bed Ambient Light is a nanoFramework-based project designed to control an ambien
 - **WiFi Configuration**: Easily configure WiFi settings through a web interface.
 - **MQTT Communication**: Connect to an MQTT broker to control the bed light remotely. (not implemented yet)
 - **LED Control**: Control the left and right sides of the LED strip independently.
-- **Color Selection**: Choose the color of the night light using a color picker.
+- **LED Settings**: Choose the count and the default color of the night light using a color picker.
 
 ## Getting Started
 
@@ -59,6 +59,10 @@ Bed Ambient Light is a nanoFramework-based project designed to control an ambien
 - `BedLightESP/Manager/WebManager/`: Contains the web server management classes.
 - `BedLightESP/WiFi/`: Contains the WiFi management classes.
 - `BedLightESP/MQTT/`: Contains the MQTT management classes.
+
+## WebUI
+
+![Screenshot from WebUI](Documentation/screenshot/MainWenUI.png)
 
 ### Contributing
 
