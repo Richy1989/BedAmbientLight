@@ -48,8 +48,15 @@ Bed Ambient Light is a nanoFramework-based project designed to control an ambien
 
 ### Usage
 
-- **Control LED Strip**:
+- **Web Controls**:
     - Use the buttons on the web interface to turn on the left or right side of the LED strip.
+	
+- **Touch Controls**:
+	- Single Click (Left Button): Turn on the left side of the LED strip with the default color.
+	- Single Click (Right Button): Turn on the right side of the LED strip with the default color.
+	- Single Click Hold (Any Button): Increase the brightness of the LED strip (Will roll over when max brightness is reached).
+	- Double Click (Any Button): Turn on the entire LED strip with with the default color.
+	- Double Click Hold (Any Button): Turn on the entire LED strip with a random gradient color.
 
 ### File Structure
 
