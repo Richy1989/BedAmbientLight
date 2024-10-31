@@ -4,11 +4,11 @@ Bed Ambient Light is a nanoFramework-based project designed to control an ambien
 
 ## Features
 
+- **WiFi Accesspoint**: Easily configure first time setup through WiFi Accesspoint.
 - **WiFi Configuration**: Easily configure WiFi settings through a web interface.
-- **MQTT Communication**: Connect to an MQTT broker to control the bed light remotely.
+- **MQTT Communication**: Connect to an MQTT broker to control the bed light remotely. (not implemented yet)
 - **LED Control**: Control the left and right sides of the LED strip independently.
 - **Color Selection**: Choose the color of the night light using a color picker.
-- **Dark Theme**: A modern dark theme with rainbow-colored borders for the web interface.
 
 ## Getting Started
 
