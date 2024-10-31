@@ -1,29 +1,35 @@
-﻿using System.Net;
-using nanoFramework.WebServer;
-using System.Reflection;
-using System.Text;
-using System;
-using BedLightESP.Helper;
-using System.Web;
-using nanoFramework.Networking;
-using System.Device.Wifi;
+﻿using System;
 using System.Collections;
-using System.Diagnostics;
-using BedLightESP.LogManager;
-using BedLightESP.WiFi;
-using BedLightESP.Settings;
+using System.Text;
 using System.Threading;
+using System.Web;
+using BedLightESP.Helper;
+using BedLightESP.LogManager;
+using BedLightESP.Settings;
+using BedLightESP.WiFi;
+using nanoFramework.WebServer;
 
 namespace BedLightESP.Manager.WebManager
 {
+    /// <summary>
+    /// WebController class handles various web routes and their corresponding actions.
+    /// </summary>
     public class WebController
     {
+        /// <summary>
+        /// Handles the request for the favicon.
+        /// </summary>
+        /// <param name="e">The event arguments containing the context of the web request.</param>
         [Route("favicon.ico")]
         public void Favico(WebServerEventArgs e)
         {
             WebServer.SendFileOverHTTP(e.Context.Response, "favico.ico", Resources.GetBytes(Resources.BinaryResources.favicon), "image/ico");
         }
 
+        /// <summary>
+        /// Handles the request for the stylesheet.
+        /// </summary>
+        /// <param name="e">The event arguments containing the context of the web request.</param>
         [Route("style.css")]
         public void Style(WebServerEventArgs e)
         {
@@ -35,23 +41,30 @@ namespace BedLightESP.Manager.WebManager
             WebServer.OutPutStream(e.Context.Response, page);
         }
 
-
+        /// <summary>
+        /// Handles the default route requests.
+        /// </summary>
+        /// <param name="e">The event arguments containing the context of the web request.</param>
         [Route("default.html"), Route("index.html"), Route("/")]
-        public void DefaultRoute(WebServerEventArgs e )
+        public void DefaultRoute(WebServerEventArgs e)
         {
             PrintDefaultPage(e);
         }
 
+        /// <summary>
+        /// Prints the default page with optional message.
+        /// </summary>
+        /// <param name="e">The event arguments containing the context of the web request.</param>
+        /// <param name="message">The optional message to display on the page.</param>
         public void PrintDefaultPage(WebServerEventArgs e, string message = "")
         {
-            //string route = $"The route asked is {e.Context.Request.RawUrl.TrimStart('/').Split('/')[0]}";
             e.Context.Response.ContentType = "text/html; charset=utf-8";
 
             var bytes = Resources.GetBytes(Resources.BinaryResources.mainPage);
             string page = HttpUtility.UrlDecode(Encoding.UTF8.GetString(bytes, 0, bytes.Length));
             string returnPage = StringHelper.ReplaceMessage(page, message, "message");
 
-            StringBuilder networkEntries = new ();
+            StringBuilder networkEntries = new();
 
             if (Program.AvailableNetworks != null)
             {
@@ -68,7 +81,7 @@ namespace BedLightESP.Manager.WebManager
             returnPage = StringHelper.ReplaceMessage(returnPage, networkEntries.ToString(), "ssid");
 
             var settings = SettingsManager.Settings;
-            
+
             returnPage = StringHelper.ReplaceMessage(returnPage, ColorHelper.ColorToHex(ColorHelper.WarmWhite), "default_color");
 
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttServer, "mqttServer");
@@ -79,6 +92,10 @@ namespace BedLightESP.Manager.WebManager
             WebServer.OutPutStream(e.Context.Response, returnPage);
         }
 
+        /// <summary>
+        /// Handles the POST request to save WiFi settings.
+        /// </summary>
+        /// <param name="e">The event arguments containing the context of the web request.</param>
         [Route("save_wifi")]
         [Method("POST")]
         public void PostSetWiFiSettings(WebServerEventArgs e)
@@ -86,7 +103,7 @@ namespace BedLightESP.Manager.WebManager
             Logger.Debug(e.Context.Request.RawUrl);
 
             Hashtable hashPars = WebHelper.ParseParamsFromStream(e.Context.Request.InputStream);
-            
+
             var ssid = (string)hashPars["ssid"];
             var password = (string)hashPars["password"];
 
@@ -112,6 +129,10 @@ namespace BedLightESP.Manager.WebManager
             PrintDefaultPage(e, $"Set wireless parameters SSID: {ssid} PASSWORD: {password}");
         }
 
+        /// <summary>
+        /// Handles the POST request to save MQTT settings.
+        /// </summary>
+        /// <param name="e">The event arguments containing the context of the web request.</param>
         [Route("save_mqtt")]
         [Method("POST")]
         public void PostSetMQTTSettings(WebServerEventArgs e)
@@ -131,12 +152,16 @@ namespace BedLightESP.Manager.WebManager
             settings.MqttPassword = password;
 
             //Start a new thread to write the settings
-            new Thread(() => { SettingsManager.WriteSettings(); } ).Start();
+            new Thread(() => { SettingsManager.WriteSettings(); }).Start();
 
             Logger.Info("MQTT settings received.");
             PrintDefaultPage(e, $"MQTT Server: {server} configured");
         }
 
+        /// <summary>
+        /// Handles the POST request to select color settings.
+        /// </summary>
+        /// <param name="e">The event arguments containing the context of the web request.</param>
         [Route("select_color")]
         [Method("POST")]
         public void PostSelectColorSettings(WebServerEventArgs e)
