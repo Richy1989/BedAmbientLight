@@ -62,7 +62,7 @@ Bed Ambient Light is a nanoFramework-based project designed to control an ambien
 
 ## WebUI
 
-![Screenshot from WebUI](Documentation/screenshot/MainWenUI.png | width=200)
+<img src="Documentation/screenshot/MainWenUI.png" width="200">
 
 ### Contributing
 
