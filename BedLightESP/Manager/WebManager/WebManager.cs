@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using BedLightESP.LogManager;
+using BedLightESP.Logging;
 using nanoFramework.WebServer;
 
 namespace BedLightESP.Manager.WebManager

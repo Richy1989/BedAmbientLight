@@ -3,11 +3,11 @@ using System.Drawing;
 using BedLightESP.Enumerations;
 using BedLightESP.EventArgsHelper;
 using BedLightESP.Helper;
-using BedLightESP.LogManager;
-using BedLightESP.Manager;
+using BedLightESP.LED;
+using BedLightESP.Logging;
 using nanoFramework.Hardware.Esp32;
 
-namespace BedLightESP.LED
+namespace BedLightESP.Manager
 {
     internal class LEDManager
     {

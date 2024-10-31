@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
-using BedLightESP.LogManager;
+using BedLightESP.Logging;
 using nanoFramework.Json;
 
 namespace BedLightESP.Settings

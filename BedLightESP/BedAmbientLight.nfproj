@@ -25,8 +25,8 @@
     <Compile Include="Helper\StringHelper.cs" />
     <Compile Include="Helper\WebHelper.cs" />
     <Compile Include="LED\APA102Controller.cs" />
-    <Compile Include="LED\LEDManager.cs" />
-    <Compile Include="LogManager\Logger.cs" />
+    <Compile Include="Manager\LEDManager.cs" />
+    <Compile Include="Logging\Logger.cs" />
     <Compile Include="Enumerations\ButtonPosition.cs" />
     <Compile Include="Enumerations\ClickType.cs" />
     <Compile Include="Manager\TouchManager.cs" />

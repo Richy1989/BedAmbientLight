@@ -2,7 +2,7 @@
 using System.Device.Wifi;
 using System.Net.NetworkInformation;
 using System.Threading;
-using BedLightESP.LogManager;
+using BedLightESP.Logging;
 using nanoFramework.Networking;
 
 namespace BedLightESP.WiFi

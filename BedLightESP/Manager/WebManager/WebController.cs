@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Web;
 using BedLightESP.Helper;
-using BedLightESP.LogManager;
+using BedLightESP.Logging;
 using BedLightESP.Settings;
 using BedLightESP.WiFi;
 using nanoFramework.WebServer;

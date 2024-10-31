@@ -3,7 +3,7 @@ using System.Device.Gpio;
 using System.Threading;
 using BedLightESP.Enumerations;
 using BedLightESP.EventArgsHelper;
-using BedLightESP.LogManager;
+using BedLightESP.Logging;
 
 namespace BedLightESP.Manager
 {

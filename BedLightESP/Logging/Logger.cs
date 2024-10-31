@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace BedLightESP.LogManager
+namespace BedLightESP.Logging
 {
     public enum LogLevel
     {
