@@ -13,11 +13,11 @@ namespace BedLightESP.LED
     internal class LEDManager : ILedManager
     {
         private readonly ITouchManager touchManager;
-        private readonly ISettingsManager settingsManager;
+        private readonly ISettingsManager _settingsManager;
         private bool leftIsOn = false;
         private bool rightIsOn = false;
         private bool wholeIsOn = false;
-        private APA102Controller apa102;
+        private ILedController ledController;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LEDManager"/> class.
@@ -27,7 +27,7 @@ namespace BedLightESP.LED
         public LEDManager(ITouchManager touchManager, ISettingsManager settingsManager)
         {
             this.touchManager = touchManager;
-            this.settingsManager = settingsManager;
+            this._settingsManager = settingsManager;
             this.touchManager.ButtonPressed += OnButtonPressed;
         }
 
@@ -37,18 +37,8 @@ namespace BedLightESP.LED
         /// <param name="length">The length of the LED strip.</param>
         public void CreateLEDDevice(int length)
         {
-            Configuration.SetPinFunction(23, DeviceFunction.SPI1_MISO);
-            Configuration.SetPinFunction(19, DeviceFunction.SPI1_MISO);
-            Configuration.SetPinFunction(18, DeviceFunction.SPI1_CLOCK);
-
-            var spiDevice = SpiDevice.Create(new SpiConnectionSettings(1, 12)
-            {
-                ClockFrequency = 20_000_000,
-                DataFlow = DataFlow.MsbFirst,
-                Mode = SpiMode.Mode0 // ensure data is ready at clock rising edge
-            });
-
-            apa102 = new APA102Controller(spiDevice, length);
+            // Create the LED controller
+            ledController = new APA102Controller(length, _settingsManager);
 
             // Turn off the LED strip by default when starting the application
             TurnOffLEDStrip();
@@ -67,31 +57,31 @@ namespace BedLightESP.LED
                 return;
             }
 
-            for (var i = 0; i < apa102.Pixels.Length; i++)
+            for (var i = 0; i < ledController.Pixels.Length; i++)
             {
                 if (side == LedStripSide.Left)
                 {
-                    if (i < apa102.Pixels.Length / 2)
+                    if (i < ledController.Pixels.Length / 2)
                     {
                         if (!leftIsOn)
-                            apa102.Pixels[i] = color[i];
+                            ledController.Pixels[i] = color[i];
                         else
-                            apa102.Pixels[i] = Color.Black;
+                            ledController.Pixels[i] = Color.Black;
                     }
                 }
                 else if (side == LedStripSide.Right)
                 {
-                    if (i >= apa102.Pixels.Length / 2)
+                    if (i >= ledController.Pixels.Length / 2)
                     {
                         if (!rightIsOn)
-                            apa102.Pixels[i] = color[i];
+                            ledController.Pixels[i] = color[i];
                         else
-                            apa102.Pixels[i] = Color.Black;
+                            ledController.Pixels[i] = Color.Black;
                     }
                 }
                 else if (side == LedStripSide.Whole) // Fixed spelling error
                 {
-                    apa102.Pixels[i] = color[i];
+                    ledController.Pixels[i] = color[i];
                     wholeIsOn = true; // Fixed spelling error
                 }
             }
@@ -105,7 +95,7 @@ namespace BedLightESP.LED
                 rightIsOn = !rightIsOn;
             }
 
-            apa102.Flush();
+            ledController.Flush();
         }
 
         /// <summary>
@@ -113,16 +103,16 @@ namespace BedLightESP.LED
         /// </summary>
         public void TurnOffLEDStrip()
         {
-            for (var i = 0; i < apa102.Pixels.Length; i++)
+            for (var i = 0; i < ledController.Pixels.Length; i++)
             {
-                apa102.Pixels[i] = Color.Black;
+                ledController.Pixels[i] = Color.Black;
             }
 
             leftIsOn = false;
             rightIsOn = false;
             wholeIsOn = false; // Fixed spelling error
 
-            apa102.Flush();
+            ledController.Flush();
         }
 
         /// <summary>
@@ -132,10 +122,10 @@ namespace BedLightESP.LED
         /// <param name="color">The color.</param>
         public void TurnOnLEDStripOneColor(LedStripSide side, Color color)
         {
-            Color[] colors = new Color[apa102.Pixels.Length];
+            Color[] colors = new Color[ledController.Pixels.Length];
 
             //populate colors with color
-            for (var i = 0; i < apa102.Pixels.Length; i++)
+            for (var i = 0; i < ledController.Pixels.Length; i++)
             {
                 colors[i] = color;
             }
@@ -150,7 +140,7 @@ namespace BedLightESP.LED
         /// <param name="e">The event arguments.</param>
         private void OnButtonPressed(object sender, ButtonPressEventArgs e)
         {
-            Color defaultColor = ColorHelper.HexToColor(settingsManager.Settings.DefaultColor);
+            Color defaultColor = ColorHelper.HexToColor(_settingsManager.Settings.DefaultColor);
 
             if (e.ButtonPosition == ButtonPosition.Left)
             {
@@ -165,7 +155,7 @@ namespace BedLightESP.LED
                 if (e.ClickType.Equals(ClickType.DoubleHold))
                 {
                     Logger.Info("Random Color!");
-                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelper.CalculateRandomGradientHUE(apa102.Pixels.Length)); // Fixed spelling error
+                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelper.CalculateRandomGradientHUE(ledController.Pixels.Length)); // Fixed spelling error
                 }
             }
             else if (e.ButtonPosition == ButtonPosition.Right)
@@ -181,14 +171,14 @@ namespace BedLightESP.LED
                 if (e.ClickType.Equals(ClickType.DoubleHold))
                 {
                     Logger.Info("Random Color!");
-                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelper.CalculateRandomGradientHUE(apa102.Pixels.Length)); // Fixed spelling error
+                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelper.CalculateRandomGradientHUE(ledController.Pixels.Length)); // Fixed spelling error
                 }
             }
 
             if (e.ClickType == ClickType.SingleHold)
             {
-                apa102.IncreaseBrightness();
-                apa102.Flush();
+                ledController.IncreaseBrightness();
+                ledController.Flush();
             }
         }
     }

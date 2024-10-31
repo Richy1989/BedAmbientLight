@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text;
-
-namespace BedLightESP.Touch
+﻿namespace BedLightESP.Touch
 {
     internal interface ITouchManager
     {

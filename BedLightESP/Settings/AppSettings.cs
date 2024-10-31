@@ -57,5 +57,15 @@ namespace BedLightESP.Settings
         /// Gets or sets the GPIO pin number for the right side LEDs.
         /// </summary>
         public int RightSidePin { get; set; } = 35;
+
+        /// <summary>
+        /// Gets or sets the GPIO pin number for the MOSI (Master Out Slave In).
+        /// </summary>
+        public int MosiPin { get; set; } = 23;
+
+        /// <summary>
+        /// Gets or sets the GPIO pin number for the clock (CLK).
+        /// </summary>
+        public int ClkPin { get; set; } = 18;
     }
 }

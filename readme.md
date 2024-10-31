@@ -15,6 +15,7 @@ Bed Ambient Light is a nanoFramework-based project designed to control an ambien
 ### Prerequisites
 
 - ESP32 microcontroller
+- APA102 LED stripe
 - nanoFramework
 - Visual Studio 2022
 - WiFi network
@@ -64,7 +65,7 @@ Bed Ambient Light is a nanoFramework-based project designed to control an ambien
 
 ## Hardware Config
 
-Default Pin config. You can change the default in code, everything else can be configured in the WebUI. 
+Default pin config. You can change the default in code, everything else can be configured in the webinterface. 
 
 - **SPI**:
     - Pin 23 - MOSI

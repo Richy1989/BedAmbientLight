@@ -2,6 +2,8 @@
 using System.Device.Spi;
 using System.Diagnostics;
 using System.Drawing;
+using BedLightESP.Settings;
+using nanoFramework.Hardware.Esp32;
 
 
 namespace BedLightESP.LED
@@ -9,7 +11,7 @@ namespace BedLightESP.LED
     /// <summary>
     /// Represents a controller for APA102 LED strip.
     /// </summary>
-    public class APA102Controller : IDisposable
+    internal class APA102Controller : ILedController
     {
         /// <summary>Gets or sets the count of LEDs in the strip.</summary>
         public int LedCount { get; set; }
@@ -20,28 +22,39 @@ namespace BedLightESP.LED
         /// <summary>Gets or sets the global brightness of the LEDs.</summary>
         public int GlobalBrightness { get; set; } = 255;
 
-        /// <summary>Object for communicating with the LED strip.</summary>
-        private readonly SpiDevice spiDevice;
-
         /// <summary>Size of the end frame.</summary>
         private readonly int endFrameSize;
+
+        /// <summary>Represents the SPI device.</summary>
+        private readonly SpiDevice spiDevice;
 
         /// <summary>Indicates whether the object has been disposed.</summary>
         private bool disposed;
 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="APA102Controller"/> class.
         /// </summary>
-        /// <param name="device">The SPI device used for communication.</param>
-        /// <param name="ledCount">The count of LEDs in the strip.</param>
-        public APA102Controller(SpiDevice device, int ledCount)
+        /// <param name="ledCount">The number of LEDs in the strip.</param>
+        /// <param name="settingsManager">The settings manager to configure the SPI pins.</param>
+        internal APA102Controller(int ledCount, ISettingsManager settingsManager)
         {
+            Configuration.SetPinFunction(settingsManager.Settings.MosiPin, DeviceFunction.SPI1_MOSI);
+            Configuration.SetPinFunction(settingsManager.Settings.ClkPin, DeviceFunction.SPI1_CLOCK);
+
+            var spiDevice = SpiDevice.Create(new SpiConnectionSettings(1, 12)
+            {
+                ClockFrequency = 20_000_000,
+                DataFlow = DataFlow.MsbFirst,
+                Mode = SpiMode.Mode0 // ensure data is ready at clock rising edge
+            });
+
             Pixels = new Color[ledCount];
             LedCount = ledCount;
 
             endFrameSize = (int)Math.Ceiling((((double)LedCount) - 1.0) / 16.0);
 
-            spiDevice = device;
+            this.spiDevice = spiDevice;
         }
 
         /// <summary>
