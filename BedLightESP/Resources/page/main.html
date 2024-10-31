@@ -37,13 +37,18 @@
         </fieldset>
     </form>
 
-    <form method='POST' action='select_color'>
+    <form method='POST' action='led_settings'>
         <fieldset>
-            <legend>Night Light Color Selection</legend>
+            <legend>LED / Color Setting</legend>
             <label for="colorpicker">Color Picker:</label>
             <input id="color_selector" name="color_selector" type="color" value="{default_color}">
             <br>
-            <input type="submit" value="Save Color Settings">
+            Led Count:
+            <br>
+            <input type="text" name="ledCount" value="{ledCount}">
+            <br>
+            <br>
+            <input type="submit" value="Save LED Settings">
         </fieldset>
     </form>
 
@@ -74,8 +79,6 @@
             <input type="submit" value="Save MQTT Settings">
         </fieldset>
     </form>
-
-    <br>
     <div class="center-message">
         <b>{message}</b>
     </div>

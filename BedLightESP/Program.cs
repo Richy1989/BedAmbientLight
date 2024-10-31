@@ -37,9 +37,9 @@ namespace BedLightESP
             //Initialize Touch Manager
             GpioController gpio = new();
             TouchManager touchManager = new(gpio);
-            
+
             //For Debugging only use 10 LEDs
-            int ledCount = 58;
+            int ledCount = SettingsManager.Settings.LedCount; //58;
             gpio.OpenPin(32, PinMode.Input);
             if (gpio.Read(32) == PinValue.High)
                 ledCount = 10;

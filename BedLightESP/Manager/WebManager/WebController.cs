@@ -88,6 +88,7 @@ namespace BedLightESP.Manager.WebManager
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.MqttPort}", "mqttPort");
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttUsername, "mqttUsername");
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttPassword, "mqttPassword");
+            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.LedCount}", "ledCount");
 
             WebServer.OutPutStream(e.Context.Response, returnPage);
         }
@@ -159,21 +160,24 @@ namespace BedLightESP.Manager.WebManager
         }
 
         /// <summary>
-        /// Handles the POST request to select color settings.
+        /// Handles the POST request to select led and color settings.
         /// </summary>
         /// <param name="e">The event arguments containing the context of the web request.</param>
-        [Route("select_color")]
+        [Route("led_settings")]
         [Method("POST")]
-        public void PostSelectColorSettings(WebServerEventArgs e)
+        public void PostSetLEDSettings(WebServerEventArgs e)
         {
             Logger.Debug(e.Context.Request.RawUrl);
             Hashtable hashPars = WebHelper.ParseParamsFromStream(e.Context.Request.InputStream);
 
             var color = (string)hashPars["color_selector"];
+            var ledCount = (string)hashPars["ledCount"];
 
             var settings = SettingsManager.Settings;
             try
             {
+                //Set LED count
+                settings.LedCount = int.Parse(ledCount);
                 //Check if this does not throw exception
                 ColorHelper.HexToColor(color);
                 settings.DefaultColor = color;
@@ -181,13 +185,13 @@ namespace BedLightESP.Manager.WebManager
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error setting color: {ex.Message}");
-                PrintDefaultPage(e, $"Error setting color: {ex.Message}");
+                Logger.Error($"Error setting LED settings: {ex.Message}");
+                PrintDefaultPage(e, $"Error setting LED settings: {ex.Message}");
                 return;
             }
 
-            Logger.Info($"Selected Color: {color}");
-            PrintDefaultPage(e, $"Set default color to: {color}");
+            Logger.Info($"Selected LED settings to Count {ledCount} and Color {color}.");
+            PrintDefaultPage(e, $"Selected LED settings to Count {ledCount} and Color {color}.");
         }
     }
 }
