@@ -11,18 +11,24 @@ using BedLightESP.Touch;
 using BedLightESP.Web;
 using BedLightESP.WiFi;
 using Microsoft.Extensions.DependencyInjection;
-using nanoFramework.Hardware.Esp32;
 
 namespace BedLightESP
 {
+    /// <summary>
+    /// The main program class for the BedLightESP application.
+    /// </summary>
     internal class Program
     {
-        public static WifiAvailableNetwork[] AvailableNetworks { get; set; }
+        /// <summary>
+        /// Gets or sets the available Wi-Fi networks.
+        /// </summary>
+        public static WifiAvailableNetwork[] AvailableNetworks { get; set; } = new WifiAvailableNetwork[0];
 
         private static IWebManager _server;
         private static bool _wifiApMode = false;
         private static int _connectedCount = 0;
 
+        //Main entry point
         public static void Main()
         {
             Debug.WriteLine("Hello from Bed Ambient Light!");
@@ -36,8 +42,9 @@ namespace BedLightESP
             //Load the LED manager
             ILedManager ledManager = services.GetRequiredService(typeof(ILedManager)) as ILedManager;
 
+            //Load gpio controller
             var gpio = services.GetRequiredService(typeof(GpioController)) as GpioController;
-            
+
             //For Debugging only use 10 LEDs
             gpio.OpenPin(32, PinMode.Input);
             if (gpio.Read(32) == PinValue.High)
@@ -80,6 +87,7 @@ namespace BedLightESP
             // Set up the AvailableNetworksChanged event to pick up when scan has completed
             wifi.AvailableNetworksChanged += Wifi_AvailableNetworksChanged;
 
+            //Wait indefinitely
             Thread.Sleep(Timeout.Infinite);
         }
 
@@ -87,7 +95,6 @@ namespace BedLightESP
         private static ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
-                //.AddSingleton(typeof())
                 .AddSingleton(typeof(GpioController))
                 .AddSingleton(typeof(ISettingsManager), typeof(SettingsManager))
                 .AddSingleton(typeof(ITouchManager), typeof(TouchManager))
