@@ -1,6 +1,6 @@
-# BedLightESP
+# Bed Ambient Light
 
-BedLightESP is a nanoFramework-based project designed to control an ambient bed light using an ESP32 microcontroller. The project includes features for WiFi configuration, MQTT communication, and LED control.
+Bed Ambient Light is a nanoFramework-based project designed to control an ambient bed light using an ESP32 microcontroller. The project includes features for WiFi configuration, MQTT communication, and LED control.
 
 ## Features
 
