@@ -12,7 +12,6 @@ using BedLightESP.Touch;
 using BedLightESP.Web;
 using BedLightESP.WiFi;
 using Microsoft.Extensions.DependencyInjection;
-using nanoFramework.Hardware.Esp32;
 
 namespace BedLightESP
 {
