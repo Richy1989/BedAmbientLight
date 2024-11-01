@@ -12,6 +12,7 @@ using BedLightESP.Touch;
 using BedLightESP.Web;
 using BedLightESP.WiFi;
 using Microsoft.Extensions.DependencyInjection;
+using nanoFramework.Hardware.Esp32;
 
 namespace BedLightESP
 {
@@ -27,6 +28,7 @@ namespace BedLightESP
 
         private static IWebManager _server;
         private static int _connectedCount = 0;
+        private static GpioController gpio;
 
         //Main entry point
         public static void Main()
@@ -46,7 +48,7 @@ namespace BedLightESP
             ITouchManager touchManager = services.GetRequiredService(typeof(ITouchManager)) as ITouchManager;
 
             //Load gpio controller
-            var gpio = services.GetRequiredService(typeof(GpioController)) as GpioController;
+            gpio = services.GetRequiredService(typeof(GpioController)) as GpioController;
 
             //For Debugging only use 10 LEDs
             gpio.OpenPin(32, PinMode.Input);
@@ -70,11 +72,18 @@ namespace BedLightESP
             try
             {
                 Logger.Info("Starting Wi-Fi scan");
+                if (Wireless80211.EnableForScan())
+                {
+                    Logger.Info("Sleeping 4 sec. to ensure wifi interface is enabled.");
+                    Thread.Sleep(4000);
+                }
                 wifi.ScanAsync();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failure starting a scan operation: {ex}");
+                Logger.Error($"Failure starting a scan operation: {ex.Message}");
+                //Try to bring the Wifi or AP up anyways
+                ConnectAndStartWebServer();
             }
 
             //Wait indefinitely
@@ -99,8 +108,14 @@ namespace BedLightESP
         /// </summary>
         private static void ConnectAndStartWebServer()
         {
+            bool forceAP = false;
+            //For Debugging only use 10 LEDs
+            gpio.OpenPin(33, PinMode.Input);
+            if (gpio.Read(33) == PinValue.High)
+                forceAP = true;
+
             // Start WiFi Manager
-            if (Wireless80211.IsEnabled())
+            if (Wireless80211.IsEnabled() && !forceAP)
             {
                 Logger.Info("Wireless80211 is enabled");
                 Wireless80211.ConnectOrSetAp();

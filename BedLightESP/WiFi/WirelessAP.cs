@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.NetworkInformation;
+using BedLightESP.Logging;
 using Iot.Device.DhcpServer;
 using nanoFramework.Runtime.Native;
 
@@ -19,7 +20,7 @@ namespace BedLightESP.WiFi
         /// <summary>
         /// Gets or sets the SSID of the Soft AP.
         /// </summary>
-        public static string SoftApSsid { get; set; } = "BedAmbientLight";
+        public static string SoftApSsid { get; set; } = $"BedAmbient_{Wireless80211.GetPhysicalAddressString()}";
 
         /// <summary>
         /// Sets the configuration for the wireless access point.
@@ -30,27 +31,27 @@ namespace BedLightESP.WiFi
             if (Setup() == false)
             {
                 // Reboot device to Activate Access Point on restart
-                Console.WriteLine($"Setup Soft AP, Rebooting device");
+                Logger.Warning($"Setup Soft AP, Rebooting device");
                 Power.RebootDevice();
             }
 
-            var dhcpserver = new DhcpServer
+            var dhcpServer = new DhcpServer
             {
                 CaptivePortalUrl = $"http://{SoftApIP}"
             };
             
-            var dhcpInitResult = dhcpserver.Start(IPAddress.Parse(SoftApIP), new IPAddress(new byte[] { 255, 255, 255, 0 }));
+            var dhcpInitResult = dhcpServer.Start(IPAddress.Parse(SoftApIP), new IPAddress(new byte[] { 255, 255, 255, 0 }));
             
             if (!dhcpInitResult)
             {
-                Console.WriteLine($"Error initializing DHCP server.");
+                Logger.Error($"Error initializing DHCP server.");
                 // This happens after a very freshly flashed device
                 Power.RebootDevice();
             }
 
-            Console.WriteLine($"Running Soft AP, waiting for client to connect");
-            Console.WriteLine($"Soft AP IP address :{GetIP()}");
-            Console.WriteLine($"DHCP Init Result: {dhcpInitResult}");
+            Logger.Info($"Running Soft AP, waiting for client to connect");
+            Logger.Info($"Soft AP IP address: {GetIP()}");
+            Logger.Info($"DHCP Init Result: {dhcpInitResult}");
             return dhcpInitResult;
         }
 
@@ -91,7 +92,7 @@ namespace BedLightESP.WiFi
             wapconf.Options = WirelessAPConfiguration.ConfigurationOptions.AutoStart |
                             WirelessAPConfiguration.ConfigurationOptions.Enable;
 
-            // Set the SSID for Access Point. If not set will use default  "nano_xxxxxx"
+            // Set the SSID for Access Point.
             wapconf.Ssid = SoftApSsid;
 
             // Maximum number of simultaneous connections, reserves memory for connections

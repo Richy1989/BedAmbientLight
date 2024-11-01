@@ -42,9 +42,11 @@ namespace BedLightESP.WiFi
         {
             if (IsEnabled())
             {
+                //Wireless80211Configuration wconf = GetConfiguration();
+                //!Configure(wconf.Ssid, wconf.Password))//
                 if (!WifiNetworkHelper.Reconnect(true, token: new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token))
                 {
-                    Logger.Info($"Error connecting to WiFi");
+                    Logger.Error($"Error connecting to WiFi");
                     WirelessAP.SetWifiAp();
                     return true;
                 }
@@ -68,7 +70,24 @@ namespace BedLightESP.WiFi
         {
             Wireless80211Configuration wconf = GetConfiguration();
             wconf.Options = Wireless80211Configuration.ConfigurationOptions.None | Wireless80211Configuration.ConfigurationOptions.SmartConfig;
+            //wconf.Options =  Wireless80211Configuration.ConfigurationOptions.Disable;
             wconf.SaveConfiguration();
+        }
+
+        /// <summary>
+        /// Enable the Wireless station interface for scanning of networks.
+        /// </summary>
+        public static bool EnableForScan()
+        {
+            Wireless80211Configuration wconf = GetConfiguration();
+
+            if (wconf.Options == Wireless80211Configuration.ConfigurationOptions.Disable)
+            {
+                wconf.Options = Wireless80211Configuration.ConfigurationOptions.Enable;
+                wconf.SaveConfiguration();
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -142,6 +161,22 @@ namespace BedLightESP.WiFi
                 }
             }
             return null;
+        }
+
+        /// <summary>Gets the physical address.</summary>
+        public static string GetPhysicalAddress()
+        {
+            var physicalAddress = GetInterface().PhysicalAddress;
+            return string.Format("{0:X}:{1:X}:{2:X}:{3:X}:{4:X}:{5:X}", physicalAddress[0], physicalAddress[1], physicalAddress[2], physicalAddress[3], physicalAddress[4], physicalAddress[5]);
+        }
+
+        /// <summary>Gets the physical address as string with no special characters.</summary>
+        public static string GetPhysicalAddressString()
+        {
+            var physicalAddress = GetInterface().PhysicalAddress;
+            
+            var mac = string.Format("{0:X}{1:X}{2:X}{3:X}{4:X}{5:X}", physicalAddress[0], physicalAddress[1], physicalAddress[2], physicalAddress[3], physicalAddress[4], physicalAddress[5]);
+            return mac;
         }
     }
 }
