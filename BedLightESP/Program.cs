@@ -26,7 +26,6 @@ namespace BedLightESP
         public static WifiAvailableNetwork[] AvailableNetworks { get; set; } = new WifiAvailableNetwork[0];
 
         private static IWebManager _server;
-        private static bool _wifiApMode = false;
         private static int _connectedCount = 0;
 
         //Main entry point
@@ -110,12 +109,10 @@ namespace BedLightESP
             }
             else
             {
-                _wifiApMode = true;
                 Logger.Info("Wireless80211 is not enabled");
-                var success = WirelessAP.SetWifiAp();
+                WirelessAP.SetWifiAp();
             }
         }
-
 
         /// <summary>
         /// Event handler for when available Wi-Fi networks are changed.

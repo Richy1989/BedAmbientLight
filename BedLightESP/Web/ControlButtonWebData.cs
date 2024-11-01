@@ -5,6 +5,6 @@ namespace BedLightESP.Web
 {
     internal class ControlButtonWebData
     {
-        public string side { get; set; }
+        public string Side { get; set; }
     }
 }

@@ -227,17 +227,17 @@ namespace BedLightESP.Web
 
             new Thread(() =>
             {
-                if (button.side == "left")
+                if (button.Side == "left")
                 {
                     _messageService.SendMessage(new TouchMessage(ButtonPosition.Left, ClickType.Single, DateTime.UtcNow));
                 }
-                else if (button.side == "right")
+                else if (button.Side == "right")
                 {
                     _messageService.SendMessage(new TouchMessage(ButtonPosition.Right, ClickType.Single, DateTime.UtcNow));
                 }
             }).Start();
 
-            Logger.Info($"Control Button {button.side} pressed.");
+            Logger.Info($"Control Button {button.Side} pressed.");
         }
     }
 }
