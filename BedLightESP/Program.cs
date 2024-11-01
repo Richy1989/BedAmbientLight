@@ -25,6 +25,7 @@ namespace BedLightESP
         /// </summary>
         public static WifiAvailableNetwork[] AvailableNetworks { get; set; } = new WifiAvailableNetwork[0];
 
+        private static ISettingsManager _settingsManager;
         private static IWebManager _server;
         private static int _connectedCount = 0;
         private static GpioController gpio;
@@ -37,8 +38,8 @@ namespace BedLightESP
             ServiceProvider services = ConfigureServices();
 
             //Load the settings
-            ISettingsManager settingsManager = services.GetRequiredService(typeof(ISettingsManager)) as ISettingsManager;
-            settingsManager.LoadSettings();
+            _settingsManager = services.GetRequiredService(typeof(ISettingsManager)) as ISettingsManager;
+            _settingsManager.LoadSettings();
 
             //Load the LED manager
             ILedManager ledManager = services.GetRequiredService(typeof(ILedManager)) as ILedManager;
@@ -50,11 +51,11 @@ namespace BedLightESP
             gpio = services.GetRequiredService(typeof(GpioController)) as GpioController;
 
             //For Debugging only use 10 LEDs
-            gpio.OpenPin(32, PinMode.Input);
-            if (gpio.Read(32) == PinValue.High)
+            gpio.OpenPin(_settingsManager.Settings.DebugPin, PinMode.Input);
+            if (gpio.Read(_settingsManager.Settings.DebugPin) == PinValue.High)
                 ledManager.CreateLEDDevice(10);
             else
-                ledManager.CreateLEDDevice(settingsManager.Settings.LedCount);
+                ledManager.CreateLEDDevice(_settingsManager.Settings.LedCount);
 
             //Load the web server
             _server = services.GetRequiredService(typeof(IWebManager)) as IWebManager;
@@ -108,10 +109,10 @@ namespace BedLightESP
         private static void ConnectAndStartWebServer()
         {
             bool forceAP = false;
-            //For Debugging only use 10 LEDs
-            gpio.OpenPin(33, PinMode.Input);
-            if (gpio.Read(33) == PinValue.High)
-                forceAP = true;
+            ////For Debugging only use 10 LEDs
+            //gpio.OpenPin(_settingsManager.Settings.DebugPin, PinMode.Input);
+            //if (gpio.Read(_settingsManager.Settings.DebugPin) == PinValue.High)
+            //    forceAP = true;
 
             // Start WiFi Manager
             if (Wireless80211.IsEnabled() && !forceAP)

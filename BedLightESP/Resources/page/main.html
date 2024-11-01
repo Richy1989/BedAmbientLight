@@ -21,102 +21,141 @@
             <button class="control-button full-width" onclick="controlLED('bothRandom')">Turn On Both Sides - Random</button>
         </div>
     </div>
-        <form method='POST' action='save_wifi'>
-            <fieldset>
-                <legend>Wireless configuration</legend>
-                Ssid:
-                <br>
-                <select name="ssid">
-                    {ssid}
-                </select>
-                <br>
-                Password:
-                <br>
-                <div class="password-div-container">
-                    <div class="box">
-                        <input type="password" id="ssidPassword" name="password" placeholder="Password">
-                        <div class="showpassword_box"><input type="checkbox" id="toggleSSIDPassword"><p>Show</p></div>
-                    </div>
+    <form method='POST' action='save_wifi'>
+        <fieldset>
+            <legend>Wireless configuration</legend>
+            SSID:
+            <br>
+            <select name="ssidDropdown" id="ssidDropdown" onchange="copySSID()">
+                {ssid}
+            </select>
+            <br>
+            <input type="text" id="ssid" name="ssid" placeholder="SSID">
+            <br>
+            Password:
+            <br>
+            <div class="password-div-container">
+                <div class="box">
+                    <input type="password" id="ssidPassword" name="password" placeholder="Password">
+                    <div class="showpassword_box"><input type="checkbox" id="toggleSSIDPassword"><p>Show</p></div>
                 </div>
-                <br>
-                <input type="submit" value="Save WiFi Settings">
-            </fieldset>
-        </form>
+            </div>
+            <br>
+            <input type="submit" value="Save WiFi Settings">
+        </fieldset>
+    </form>
 
-        <form method='POST' action='led_settings'>
-            <fieldset>
-                <legend>LED / Color Setting</legend>
-                <label for="colorpicker">Default Color:</label>
-                <input id="color_selector" name="color_selector" type="color" value="{default_color}">
-                <br>
-                Led Count:
-                <br>
-                <input type="text" name="ledCount" value="{ledCount}">
-                <br>
-                <br>
-                <input type="submit" value="Save LED Settings">
-            </fieldset>
-        </form>
-
-        <form method='POST' action='save_mqtt'>
-            <fieldset>
-                <legend>MQTT Configuration</legend>
-                Server:
-                <br>
-                <input type="text" name="mqttServer" value="{mqttServer}">
-                <br>
-                Port:
-                <br>
-                <input type="text" name="mqttPort" value="{mqttPort}">
-                <br>
-                Username:
-                <br>
-                <input type="text" name="mqttUsername" value="{mqttUsername}">
-                <br>
-                Password:
-                <br>
-                <div class="password-div-container">
-                    <div class="box">
-                        <input type="password" id="mqttPassword" name="mqttPassword" placeholder="Password" value="{mqttPassword}">
-                        <div class="showpassword_box"><input type="checkbox" id="toggleMQTTPassword"><p>Show</p></div>
-                    </div>
+    <form method='POST' action='led_settings'>
+        <fieldset>
+            <legend>LED / Color Setting</legend>
+            <label for="colorpicker">Default Color:</label>
+            <input id="color_selector" name="color_selector" type="color" value="{default_color}">
+            <br>
+            Led Count:
+            <br>
+            <input type="text" name="ledCount" value="{ledCount}">
+            <br>
+            <br>
+            <input type="submit" value="Save LED Settings">
+        </fieldset>
+    </form>
+    <form method='POST' action='gpio_settings'>
+        <fieldset>
+            <legend>GPIO Configuration</legend>
+            <div class="gpio-container">
+                <div class="gpio-column">
+                    <label for="mosi">MOSI:</label>
+                    <input type="text" id="gpio1" name="mosi" value="{mosi}">
+                    <br>
+                    <label for="clk">CLK:</label>
+                    <input type="text" id="clk" name="clk" value="{clk}">
+                    <br>
+                    <!--<label for="gpio3">GPIO 3:</label>
+                    <input type="text" id="gpio3" name="gpio3" placeholder="GPIO 3">
+                    <br>-->
                 </div>
-                <br>
-                <input type="submit" value="Save MQTT Settings">
-            </fieldset>
-        </form>
-        <div class="center-message">
-            <b>{message}</b>
-        </div>
+                <div class="gpio-column">
+                    <label for="leftpin">Left Pin:</label>
+                    <input type="text" id="leftpin" name="leftsidepin" value="{leftpin}">
+                    <br>
+                    <label for="rightpin">Right Pin:</label>
+                    <input type="text" id="rightpin" name="rightpin" value="{rightpin}">
+                    <br>
+                    <label for="debugpin">Debug Pin:</label>
+                    <input type="text" id="debugpin" name="debugpin" value="{debugpin}">
+                    <br>
+                </div>
+            </div>
+            <input type="submit" value="Save GPIO Settings">
+        </fieldset>
+    </form>
 
-        <script>
-            document.getElementById('toggleMQTTPassword').addEventListener('change', function () {
-                var passwordField = document.getElementById('mqttPassword');
-                if (this.checked) {
-                    passwordField.type = 'text';
-                } else {
-                    passwordField.type = 'password';
-                }
-            });
+    <!--        <form method='POST' action='save_mqtt'>
+                <fieldset>
+                    <legend>MQTT Configuration</legend>
+                    Server:
+                    <br>
+                    <input type="text" name="mqttServer" value="{mqttServer}">
+                    <br>
+                    Port:
+                    <br>
+                    <input type="text" name="mqttPort" value="{mqttPort}">
+                    <br>
+                    Username:
+                    <br>
+                    <input type="text" name="mqttUsername" value="{mqttUsername}">
+                    <br>
+                    Password:
+                    <br>
+                    <div class="password-div-container">
+                        <div class="box">
+                            <input type="password" id="mqttPassword" name="mqttPassword" placeholder="Password" value="{mqttPassword}">
+                            <div class="showpassword_box"><input type="checkbox" id="toggleMQTTPassword"><p>Show</p></div>
+                        </div>
+                    </div>
+                    <br>
+                    <input type="submit" value="Save MQTT Settings">
+                </fieldset>
+            </form>
+    -->
+    <div class="center-message">
+        <b>{message}</b>
+    </div>
 
-            document.getElementById('toggleSSIDPassword').addEventListener('change', function () {
-                var passwordField = document.getElementById('ssidPassword');
-                if (this.checked) {
-                    passwordField.type = 'text';
-                } else {
-                    passwordField.type = 'password';
-                }
-            });
-
-            function controlLED(side) {
-                fetch('/controlbutton_pressed', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ Side: side })
-                });
+    <script>
+        document.getElementById('toggleMQTTPassword').addEventListener('change', function () {
+            var passwordField = document.getElementById('mqttPassword');
+            if (this.checked) {
+                passwordField.type = 'text';
+            } else {
+                passwordField.type = 'password';
             }
-        </script>
+        });
+
+        document.getElementById('toggleSSIDPassword').addEventListener('change', function () {
+            var passwordField = document.getElementById('ssidPassword');
+            if (this.checked) {
+                passwordField.type = 'text';
+            } else {
+                passwordField.type = 'password';
+            }
+        });
+
+        function controlLED(side) {
+            fetch('/controlbutton_pressed', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ Side: side })
+            });
+        }
+
+        function copySSID() {
+            var ssidDropdown = document.getElementById('ssidDropdown');
+            var ssidText = document.getElementById('ssid');
+            ssidText.value = ssidDropdown.options[ssidDropdown.selectedIndex].text;
+        }
+    </script>
 </body>
 </html>

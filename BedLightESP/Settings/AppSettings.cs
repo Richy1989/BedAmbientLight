@@ -39,6 +39,11 @@ namespace BedLightESP.Settings
         public string MqttPassword { get; set; }
 
         /// <summary>
+        /// Gets or sets the MQTT client ID.
+        /// </summary>
+        public string MqttClientID { get; set; }
+
+        /// <summary>
         /// Gets or sets the default color in hexadecimal format.
         /// </summary>
         public string DefaultColor { get; set; } = ColorHelper.ColorToHex(Color.FromArgb(239, 235, 216));
@@ -66,5 +71,10 @@ namespace BedLightESP.Settings
         /// Gets or sets the GPIO pin number for the clock (CLK).
         /// </summary>
         public int ClkPin { get; set; } = 18;
+
+        /// <summary>
+        /// Gets or sets the GPIO pin number for the debug pin.
+        /// </summary>
+        public int DebugPin { get; set; } = 32;
     }
 }

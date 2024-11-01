@@ -77,7 +77,7 @@
       <HintPath>..\packages\nanoFramework.Hardware.Esp32.1.6.19\lib\nanoFramework.Hardware.Esp32.dll</HintPath>
     </Reference>
     <Reference Include="nanoFramework.Json">
-      <HintPath>..\packages\nanoFramework.Json.2.2.138\lib\nanoFramework.Json.dll</HintPath>
+      <HintPath>..\packages\nanoFramework.Json.2.2.152\lib\nanoFramework.Json.dll</HintPath>
     </Reference>
     <Reference Include="nanoFramework.ResourceManager">
       <HintPath>..\packages\nanoFramework.ResourceManager.1.2.19\lib\nanoFramework.ResourceManager.dll</HintPath>

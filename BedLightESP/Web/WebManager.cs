@@ -42,11 +42,12 @@ namespace BedLightESP.Web
             }).Start();
         }
 
+
         /// <summary>
         /// Stops the web server if it is running.
         /// </summary>
         /// <remarks>
-        /// This method will attempt to stop the web server and wait for up to 10 seconds for the server to stop.
+        /// This method will attempt to stop the web server.
         /// </remarks>
         public void Stop()
         {

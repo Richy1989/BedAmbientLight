@@ -1,18 +1,31 @@
 ﻿using System;
 using System.Drawing;
-using BedLightESP.Settings;
 
 namespace BedLightESP.Helper
 {
+    /// <summary>
+    /// Provides helper methods for color conversions and gradient calculations.
+    /// </summary>
     internal class ColorHelper
     {
+        /// <summary>
+        /// Converts a <see cref="Color"/> to its hexadecimal string representation.
+        /// </summary>
+        /// <param name="color">The color to convert.</param>
+        /// <returns>A hexadecimal string representation of the color.</returns>
         public static string ColorToHex(Color color)
         {
-            string value =  $"#{color.R:X2}{color.G:X2}{color.B:X2}";
-            return value; 
-                
+            string value = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+            return value;
+
         }
 
+        /// <summary>
+        /// Converts a hexadecimal string representation of a color to a <see cref="Color"/>.
+        /// </summary>
+        /// <param name="hex">The hexadecimal string representation of the color.</param>
+        /// <returns>The <see cref="Color"/> represented by the hexadecimal string.</returns>
+        /// <exception cref="ArgumentException">Thrown when the hex color code is not 6 characters long.</exception>
         public static Color HexToColor(string hex)
         {
             if (hex.StartsWith("#"))
@@ -32,6 +45,11 @@ namespace BedLightESP.Helper
             return Color.FromArgb(r, g, b);
         }
 
+        /// <summary>
+        /// Generates a gradient of random colors.
+        /// </summary>
+        /// <param name="length">The number of colors in the gradient.</param>
+        /// <returns>An array of <see cref="Color"/> representing the gradient.</returns>
         public static Color[] GenerateRandomColorGradient(int length)
         {
             Random random = new();
@@ -58,6 +76,11 @@ namespace BedLightESP.Helper
             return colorArray;
         }
 
+        /// <summary>
+        /// Generates a gradient of random colors based on HUE.
+        /// </summary>
+        /// <param name="size">The number of colors in the gradient.</param>
+        /// <returns>An array of <see cref="Color"/> representing the gradient.</returns>
         public static Color[] CalculateRandomGradientHUE(int size)
         {
             Random random = new();
@@ -72,6 +95,13 @@ namespace BedLightESP.Helper
             return CalculateGradientHUE(startColor, endColor, size);
         }
 
+        /// <summary>
+        /// Calculates a gradient of colors based on HUE.
+        /// </summary>
+        /// <param name="startColor">The starting color of the gradient.</param>
+        /// <param name="endColor">The ending color of the gradient.</param>
+        /// <param name="size">The number of colors in the gradient.</param>
+        /// <returns>An array of <see cref="Color"/> representing the gradient.</returns>
         public static Color[] CalculateGradientHUE(Color startColor, Color endColor, int size)
         {
             Color[] colors = new Color[size];
