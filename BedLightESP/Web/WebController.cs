@@ -233,6 +233,14 @@ namespace BedLightESP.Web
                 {
                     _messageService.SendMessage(new TouchMessage(ButtonPosition.Right, ClickType.Single, DateTime.UtcNow));
                 }
+                else if (button.Side == "bothDefault")
+                {
+                    _messageService.SendMessage(new TouchMessage(ButtonPosition.Left, ClickType.Double, DateTime.UtcNow));
+                }
+                else if (button.Side == "bothRandom")
+                {
+                    _messageService.SendMessage(new TouchMessage(ButtonPosition.Left, ClickType.DoubleHold, DateTime.UtcNow));
+                }
             }).Start();
 
             Logger.Info($"Control Button {button.Side} pressed.");
