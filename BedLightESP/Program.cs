@@ -61,6 +61,12 @@ namespace BedLightESP
 
             WifiAdapter wifi = WifiAdapter.FindAllAdapters()[0];
 
+            // Set up the NetworkAPStationChanged event to pick up when stations connect or disconnect
+            NetworkChange.NetworkAPStationChanged += NetworkChange_NetworkAPStationChanged;
+
+            // Set up the AvailableNetworksChanged event to pick up when scan has completed
+            wifi.AvailableNetworksChanged += Wifi_AvailableNetworksChanged;
+
             // Start WiFi scan
             try
             {
@@ -71,25 +77,6 @@ namespace BedLightESP
             {
                 Debug.WriteLine($"Failure starting a scan operation: {ex}");
             }
-
-            // Start WiFi Manager
-            if (Wireless80211.IsEnabled())
-            {
-                Logger.Info("Wireless80211 is enabled");
-                Wireless80211.ConnectOrSetAp();
-            }
-            else
-            {
-                _wifiApMode = true;
-                Logger.Info("Wireless80211 is not enabled");
-                var success = WirelessAP.SetWifiAp();
-            }
-
-            // Set up the NetworkAPStationChanged event to pick up when stations connect or disconnect
-            NetworkChange.NetworkAPStationChanged += NetworkChange_NetworkAPStationChanged;
-
-            // Set up the AvailableNetworksChanged event to pick up when scan has completed
-            wifi.AvailableNetworksChanged += Wifi_AvailableNetworksChanged;
 
             //Wait indefinitely
             Thread.Sleep(Timeout.Infinite);
@@ -108,6 +95,27 @@ namespace BedLightESP
                 .BuildServiceProvider();
         }
 
+        /// <summary>
+        /// Connects to the Wi-Fi network and starts the web server or enable the AP mode.
+        /// </summary>
+        private static void ConnectAndStartWebServer()
+        {
+            // Start WiFi Manager
+            if (Wireless80211.IsEnabled())
+            {
+                Logger.Info("Wireless80211 is enabled");
+                Wireless80211.ConnectOrSetAp();
+                if (!_server.IsRunning)
+                    _server.Start();
+            }
+            else
+            {
+                _wifiApMode = true;
+                Logger.Info("Wireless80211 is not enabled");
+                var success = WirelessAP.SetWifiAp();
+            }
+        }
+
 
         /// <summary>
         /// Event handler for when available Wi-Fi networks are changed.
@@ -119,8 +127,8 @@ namespace BedLightESP
             Logger.Info("WiFi Networks Scanned!");
             AvailableNetworks = sender.NetworkReport.AvailableNetworks;
 
-            if (!_server.IsRunning && !_wifiApMode)
-                _server.Start();
+            // Connect to the network and start the web server when available networks are scanned
+            ConnectAndStartWebServer();
         }
 
         /// <summary>
