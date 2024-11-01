@@ -18,8 +18,14 @@
   </PropertyGroup>
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.props" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.props')" />
   <ItemGroup>
+    <Compile Include="Messages\IMessage.cs" />
+    <Compile Include="Messages\IMessageReceiver.cs" />
+    <Compile Include="Messages\IMessageService.cs" />
+    <Compile Include="Messages\MessageService.cs" />
+    <Compile Include="Messages\MessageType.cs" />
+    <Compile Include="Messages\TouchMessage.cs" />
+    <Compile Include="Enumerations\CommandEnum.cs" />
     <Compile Include="Enumerations\LedStripSide.cs" />
-    <Compile Include="EventArgsHelper\ButtonPressEventArgs.cs" />
     <Compile Include="Helper\ColorHelper.cs" />
     <Compile Include="Helper\HLSColor.cs" />
     <Compile Include="Helper\StringHelper.cs" />

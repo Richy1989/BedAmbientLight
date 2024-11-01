@@ -2,8 +2,8 @@
 using System.Device.Gpio;
 using System.Threading;
 using BedLightESP.Enumerations;
-using BedLightESP.EventArgsHelper;
 using BedLightESP.Logging;
+using BedLightESP.Messages;
 using BedLightESP.Settings;
 
 namespace BedLightESP.Touch
@@ -13,7 +13,7 @@ namespace BedLightESP.Touch
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    internal delegate void ButtonPressedEventHandler(object sender, ButtonPressEventArgs e);
+    //internal delegate void ButtonPressedEventHandler(object sender, ButtonPressEventArgs e);
 
     /// <summary>
     /// Represents a touch manager that handles touch events for buttons.
@@ -25,7 +25,7 @@ namespace BedLightESP.Touch
     internal class TouchManager : ITouchManager
     {
         // Event handler for button press events
-        public event ButtonPressedEventHandler ButtonPressed;
+        //public event ButtonPressedEventHandler ButtonPressed;
 
         private readonly int ButtonLeftPin; // GPIO pin number for the touch sensor / default 34 
         private readonly int ButtonRightPin; // GPIO pin number for the touch sensor / default 35
@@ -36,19 +36,19 @@ namespace BedLightESP.Touch
 
         private readonly GpioController _gpioController;
         private readonly ISettingsManager _settingsManager;
+        private readonly IMessageService _messageService;
+
         private int _touchCount = 0;
         private DateTime _lastTouchTime;
         private bool _isInCheck = false;
         private ButtonPosition _currentClick = ButtonPosition.None;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TouchManager"/> class.
-        /// </summary>
-        /// <param name="_gpioController">The GPIO controller.</param>
-        public TouchManager(GpioController gpioController, ISettingsManager settingsManager)
+
+        public TouchManager(GpioController gpioController, ISettingsManager settingsManager, IMessageService messageService)
         {
             this._gpioController = gpioController;
             this._settingsManager = settingsManager;
+            this._messageService = messageService;
 
             // Initialize pins for left and right buttons
             ButtonLeftPin = _settingsManager.Settings.LeftSidePin;
@@ -61,6 +61,7 @@ namespace BedLightESP.Touch
             // Register event handlers for pin value changes
             _gpioController.RegisterCallbackForPinValueChangedEvent(ButtonLeftPin, PinEventTypes.Rising, ButtonLeftPressed);
             _gpioController.RegisterCallbackForPinValueChangedEvent(ButtonRightPin, PinEventTypes.Rising, ButtonRightPressed);
+            _messageService = messageService;
         }
 
         /// <summary>
@@ -158,14 +159,16 @@ namespace BedLightESP.Touch
             {
                 isContinuous = true;
                 Logger.Info($"Continuous Single Touch Detected: {positionOfLongClick}");
-                ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.SingleHold, DateTime.UtcNow));
+                //ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.SingleHold, DateTime.UtcNow));
+                FireTouchMessage(positionOfLongClick, ClickType.SingleHold, DateTime.UtcNow);
                 Thread.Sleep(500);
             }
 
             if (!isContinuous)
             {
                 Logger.Info($"Single Touch Detected: {positionOfLongClick}");
-                ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.Single, DateTime.UtcNow));
+                //ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.Single, DateTime.UtcNow));
+                FireTouchMessage(positionOfLongClick, ClickType.Single, DateTime.UtcNow);
             }
         }
 
@@ -179,7 +182,8 @@ namespace BedLightESP.Touch
 
             // Double touch detected
             Logger.Info($"Double touch detected: {positionOfLongClick}");
-            ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.Double, DateTime.UtcNow));
+            //ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.Double, DateTime.UtcNow));
+            FireTouchMessage(positionOfLongClick, ClickType.Double, DateTime.UtcNow);
 
             while (_gpioController.Read(pinNumber) == PinValue.High)
             {
@@ -187,11 +191,18 @@ namespace BedLightESP.Touch
                 {
                     // Fire an event every 300ms as long as the button is pressed
                     Logger.Info($"Continuous double touch detected: {positionOfLongClick}");
-                    ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.DoubleHold, DateTime.UtcNow));
+                    //ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.DoubleHold, DateTime.UtcNow));
+                    FireTouchMessage(positionOfLongClick, ClickType.DoubleHold, DateTime.UtcNow);
                     Thread.Sleep(500);
                 }
                 Thread.Sleep(1);
             }
+        }
+
+        private void FireTouchMessage(ButtonPosition buttonPosition, ClickType type, DateTime dateTime)
+        {
+            Logger.Debug($"Firing Touch Message. Position: {buttonPosition}, Type: {type}, Time: {dateTime}");
+            _messageService.SendMessage(new TouchMessage(buttonPosition, type, dateTime));
         }
     }
 }

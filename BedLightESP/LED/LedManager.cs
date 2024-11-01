@@ -1,16 +1,17 @@
 ﻿using System.Drawing;
 using BedLightESP.Enumerations;
-using BedLightESP.EventArgsHelper;
 using BedLightESP.Helper;
 using BedLightESP.Logging;
+using BedLightESP.Messages;
 using BedLightESP.Settings;
-using BedLightESP.Touch;
 
 namespace BedLightESP.LED
 {
-    internal class LEDManager : ILedManager
+    /// <summary>
+    /// Manages the LED strip, including turning it on and off, setting colors, and handling touch messages.
+    /// </summary>
+    internal class LEDManager : ILedManager, IMessageReceiver
     {
-        private readonly ITouchManager touchManager;
         private readonly ISettingsManager _settingsManager;
         private bool leftIsOn = false;
         private bool rightIsOn = false;
@@ -20,13 +21,22 @@ namespace BedLightESP.LED
         /// <summary>
         /// Initializes a new instance of the <see cref="LEDManager"/> class.
         /// </summary>
-        /// <param name="length">The length of the LED strip.</param>
-        /// <param name="touchManager">The touch manager.</param>
-        public LEDManager(ITouchManager touchManager, ISettingsManager settingsManager)
+        /// <param name="side">The side of the LED strip to turn on.</param>
+        /// <param name="color">The array of colors.</param>
+        public LEDManager(ISettingsManager settingsManager, IMessageService messageService)
         {
-            this.touchManager = touchManager;
             this._settingsManager = settingsManager;
-            this.touchManager.ButtonPressed += OnButtonPressed;
+
+            messageService.RegisterClient(MessageType.Touch, this);
+        }
+
+        /// <summary>
+        /// Executes the received message.
+        /// </summary>
+        /// <param name="message">The message to execute.</param>
+        public void ExecuteMessage(IMessage message)
+        {
+            OnTouchMessageReceived(message as TouchMessage);
         }
 
         /// <summary>
@@ -132,11 +142,11 @@ namespace BedLightESP.LED
         }
 
         /// <summary>
-        /// Event handler for button pressed event.
+        /// Controls the LED strip based on the received touch message.
         /// </summary>
-        /// <param name="sender">The sender of the event.</param>
-        /// <param name="e">The event arguments.</param>
-        private void OnButtonPressed(object sender, ButtonPressEventArgs e)
+        /// <param name="side">The side of the LED strip to turn on.</param>
+        /// <param name="color">The color.</param>
+        private void OnTouchMessageReceived(TouchMessage e)
         {
             Color defaultColor = ColorHelper.HexToColor(_settingsManager.Settings.DefaultColor);
 

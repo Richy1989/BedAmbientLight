@@ -6,6 +6,7 @@ using System.Net.NetworkInformation;
 using System.Threading;
 using BedLightESP.LED;
 using BedLightESP.Logging;
+using BedLightESP.Messages;
 using BedLightESP.Settings;
 using BedLightESP.Touch;
 using BedLightESP.Web;
@@ -41,6 +42,9 @@ namespace BedLightESP
 
             //Load the LED manager
             ILedManager ledManager = services.GetRequiredService(typeof(ILedManager)) as ILedManager;
+
+            //Load the Touch manager
+            ITouchManager touchManager = services.GetRequiredService(typeof(ITouchManager)) as ITouchManager;
 
             //Load gpio controller
             var gpio = services.GetRequiredService(typeof(GpioController)) as GpioController;
@@ -96,7 +100,7 @@ namespace BedLightESP
         {
             return new ServiceCollection()
                 .AddSingleton(typeof(GpioController))
-                .AddSingleton(typeof(ISettingsManager), typeof(SettingsManager))
+                .AddSingleton(typeof(IMessageService), typeof(MessageService))
                 .AddSingleton(typeof(ITouchManager), typeof(TouchManager))
                 .AddSingleton(typeof(ILedManager), typeof(LEDManager))
                 .AddSingleton(typeof(IWebManager), typeof(WebManager))
