@@ -1,6 +1,10 @@
 # Bed Ambient Light
 
-Bed Ambient Light is a nanoFramework-based project designed to control an ambient bed light using an ESP32 microcontroller. The project includes features for WiFi configuration, MQTT communication, and LED control.
+This project is a custom bed lighting system that uses an LED strip installed behind the bed, controlled by two touch buttons mounted on each side. Each button controls half of the LEDs independently, allowing individual lighting on either side of the bed. Additionally, a held double-click on either button turns on the entire LED strip with the default color first, and then activating a random gradient mode that generates unique color gradients as long as the button is held.
+
+The setup is powered by an ESP32 microcontroller programmed in NanoFramework, paired with APA102 LEDs for precise color control. A web interface provides easy configuration and customization of the lighting settings, allowing for personalized control over colors, brightness, and behavior.
+
+This project offers a fun, interactive, and configurable lighting solution for your bedroom, enhancing ambiance with minimal hardware and intuitive controls.
 
 ## Features
 
