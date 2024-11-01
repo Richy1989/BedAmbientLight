@@ -103,8 +103,13 @@
         });
 
         function controlLED(side) {
-            // Implement the logic to control the LED strip here
-            alert('Turning on ' + side + ' side of the LED strip');
+            fetch('/controlbutton_pressed', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ side: side })
+            });
         }
     </script>
 </body>

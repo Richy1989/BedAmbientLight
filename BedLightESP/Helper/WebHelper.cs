@@ -14,7 +14,7 @@ namespace BedLightESP.Helper
             inputStream.Read(buffer, 0, (int)inputStream.Length);
 
             //return ParseParams(System.Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length));
-            return ParseParams(HttpUtility.UrlDecode(System.Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length)));
+            return ParseParams(HttpUtility.UrlDecode(Encoding.UTF8.GetString(buffer, 0, buffer.Length)));
         }
 
         public static Hashtable ParseParams(string rawParams)

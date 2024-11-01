@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections;
+using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Web;
+using BedLightESP.Enumerations;
 using BedLightESP.Helper;
 using BedLightESP.Logging;
+using BedLightESP.Messages;
 using BedLightESP.Settings;
 using BedLightESP.WiFi;
+using nanoFramework.Json;
 using nanoFramework.WebServer;
 
 namespace BedLightESP.Web
@@ -16,11 +21,12 @@ namespace BedLightESP.Web
     /// </summary>
     internal class WebController
     {
-        private readonly ISettingsManager SettingsManager;
-
-        public WebController(ISettingsManager settingsManager)
+        private readonly ISettingsManager _settingsManager;
+        private readonly IMessageService _messageService;
+        public WebController(ISettingsManager settingsManager, IMessageService messageService)
         {
-            this.SettingsManager = settingsManager;
+            _settingsManager = settingsManager;
+            _messageService = messageService;
         }
 
         /// <summary>
@@ -87,9 +93,9 @@ namespace BedLightESP.Web
 
             returnPage = StringHelper.ReplaceMessage(returnPage, networkEntries.ToString(), "ssid");
 
-            var settings = SettingsManager.Settings;
+            var settings = _settingsManager.Settings;
 
-            returnPage = StringHelper.ReplaceMessage(returnPage, SettingsManager.Settings.DefaultColor, "default_color");
+            returnPage = StringHelper.ReplaceMessage(returnPage, _settingsManager.Settings.DefaultColor, "default_color");
 
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttServer, "mqttServer");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.MqttPort}", "mqttPort");
@@ -153,14 +159,14 @@ namespace BedLightESP.Web
             var server = (string)hashPars["mqttServer"];
             var port = (string)hashPars["mqttPort"];
 
-            var settings = SettingsManager.Settings;
+            var settings = _settingsManager.Settings;
             settings.MqttPort = int.Parse(port);
             settings.MqttServer = server;
             settings.MqttUsername = user;
             settings.MqttPassword = password;
 
             //Start a new thread to write the settings
-            new Thread(() => { SettingsManager.WriteSettings(); }).Start();
+            new Thread(() => { _settingsManager.WriteSettings(); }).Start();
 
             Logger.Info("MQTT settings received.");
             PrintDefaultPage(e, $"MQTT Server: {server} configured");
@@ -180,7 +186,7 @@ namespace BedLightESP.Web
             var color = (string)hashPars["color_selector"];
             var ledCount = (string)hashPars["ledCount"];
 
-            var settings = SettingsManager.Settings;
+            var settings = _settingsManager.Settings;
             try
             {
                 //Set LED count
@@ -188,7 +194,7 @@ namespace BedLightESP.Web
                 //Check if this does not throw exception
                 ColorHelper.HexToColor(color);
                 settings.DefaultColor = color;
-                new Thread(() => { SettingsManager.WriteSettings(); }).Start();
+                new Thread(() => { _settingsManager.WriteSettings(); }).Start();
             }
             catch (Exception ex)
             {
@@ -199,6 +205,39 @@ namespace BedLightESP.Web
 
             Logger.Info($"Selected LED settings to Count {ledCount} and Color {color}.");
             PrintDefaultPage(e, $"Selected LED settings to Count {ledCount} and Color {color}.");
+        }
+
+        [Route("controlbutton_pressed")]
+        [Method("POST")]
+        public void PostControlButtonPressed(WebServerEventArgs e)
+        {
+            Logger.Debug(e.Context.Request.RawUrl);
+
+            ControlButtonWebData button = null;
+            try
+            {
+                button = (ControlButtonWebData)JsonConvert.DeserializeObject(e.Context.Request.InputStream, typeof(ControlButtonWebData));
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error parsing control button data: {ex.Message}");
+                PrintDefaultPage(e, $"Error parsing control button data: {ex.Message}");
+                return;
+            }
+
+            new Thread(() =>
+            {
+                if (button.side == "left")
+                {
+                    _messageService.SendMessage(new TouchMessage(ButtonPosition.Left, ClickType.Single, DateTime.UtcNow));
+                }
+                else if (button.side == "right")
+                {
+                    _messageService.SendMessage(new TouchMessage(ButtonPosition.Right, ClickType.Single, DateTime.UtcNow));
+                }
+            }).Start();
+
+            Logger.Info($"Control Button {button.side} pressed.");
         }
     }
 }
