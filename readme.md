@@ -66,7 +66,7 @@ This project offers a fun, interactive, and configurable lighting solution for y
 
 ## Hardware Config
 
-Default pin config. You can change the default in code, everything else can be configured in the webinterface. 
+Default pin config. You can change the default in code, everything else can be configured in the webinterface (not implemented yet). 
 
 - **SPI**:
     - Pin 23 - MOSI
