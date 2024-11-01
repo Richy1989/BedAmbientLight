@@ -27,10 +27,7 @@ This project offers a fun, interactive, and configurable lighting solution for y
 
 ### Installation
 
-1. Clone the repository:
-	```sh
-	git clone https://github.com/yourusername/BedLightESP.git
-	```
+1. Clone the repository
 2. Open the project in Visual Studio 2022.
 3. Deploy the project to your ESP32 device.
 
