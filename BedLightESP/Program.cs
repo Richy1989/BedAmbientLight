@@ -4,6 +4,7 @@ using System.Device.Wifi;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Threading;
+using BedLightESP.Helper;
 using BedLightESP.LED;
 using BedLightESP.Logging;
 using BedLightESP.Messages;
@@ -34,6 +35,8 @@ namespace BedLightESP
         public static void Main()
         {
             Debug.WriteLine("Hello from Bed Ambient Light!");
+
+            DebugHelper.StartMemoryDumpTask();
 
             ServiceProvider services = ConfigureServices();
 

@@ -113,13 +113,11 @@ namespace BedLightESP.Web
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttUsername, "mqttUsername");
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttPassword, "mqttPassword");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.LedCount}", "ledCount");
-            
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.MosiPin}", "mosi");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.ClkPin}", "clk");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.LeftSidePin}", "leftpin");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.RightSidePin}", "rightpin");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.DebugPin}", "debugpin");
-
             WebServer.OutPutStream(e.Context.Response, returnPage);
         }
 
