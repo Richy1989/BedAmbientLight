@@ -25,7 +25,7 @@ This project offers a fun, interactive, and configurable lighting solution for y
 - WiFi network
 - MQTT broker (optional)
 
-Note:
+**Note:**
 I would suggest some PSRAM, since the in my experience WebServer is unstable with only 512kB RAM an NanoFramework
 
 ### Installation

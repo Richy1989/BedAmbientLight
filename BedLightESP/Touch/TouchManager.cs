@@ -9,13 +9,6 @@ using BedLightESP.Settings;
 namespace BedLightESP.Touch
 {
     /// <summary>
-    /// Button Pressed Event Handler
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    //internal delegate void ButtonPressedEventHandler(object sender, ButtonPressEventArgs e);
-
-    /// <summary>
     /// Represents a touch manager that handles touch events for buttons.
     /// </summary>
     /// <remarks>
@@ -164,7 +157,6 @@ namespace BedLightESP.Touch
             {
                 isContinuous = true;
                 Logger.Info($"Continuous Single Touch Detected: {positionOfLongClick}");
-                //ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.SingleHold, DateTime.UtcNow));
                 FireTouchMessage(positionOfLongClick, ClickType.SingleHold, DateTime.UtcNow);
                 Thread.Sleep(500);
             }
@@ -172,7 +164,6 @@ namespace BedLightESP.Touch
             if (!isContinuous)
             {
                 Logger.Info($"Single Touch Detected: {positionOfLongClick}");
-                //ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.Single, DateTime.UtcNow));
                 FireTouchMessage(positionOfLongClick, ClickType.Single, DateTime.UtcNow);
             }
         }
@@ -187,7 +178,6 @@ namespace BedLightESP.Touch
 
             // Double touch detected
             Logger.Info($"Double touch detected: {positionOfLongClick}");
-            //ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.Double, DateTime.UtcNow));
             FireTouchMessage(positionOfLongClick, ClickType.Double, DateTime.UtcNow);
 
             while (_gpioController.Read(pinNumber) == PinValue.High)
@@ -196,7 +186,6 @@ namespace BedLightESP.Touch
                 {
                     // Fire an event every 300ms as long as the button is pressed
                     Logger.Info($"Continuous double touch detected: {positionOfLongClick}");
-                    //ButtonPressed?.Invoke(this, new ButtonPressEventArgs(positionOfLongClick, ClickType.DoubleHold, DateTime.UtcNow));
                     FireTouchMessage(positionOfLongClick, ClickType.DoubleHold, DateTime.UtcNow);
                     Thread.Sleep(500);
                 }
