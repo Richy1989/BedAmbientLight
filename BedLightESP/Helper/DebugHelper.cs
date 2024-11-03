@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using BedLightESP.Logging;
 
@@ -13,12 +12,14 @@ namespace BedLightESP.Helper
             if (!Debugger.IsAttached)
                 return;
 
+            nanoFramework.Runtime.Native.GC.EnableGCMessages(true);
+
             new Thread(() =>
             {
                 while (true)
                 {
-                    Thread.Sleep(1000);
                     Logger.Debug($"Free memory = {nanoFramework.Runtime.Native.GC.Run(true)}");
+                    Thread.Sleep(TimeSpan.FromMinutes(10));
                 }
             }).Start();
         }

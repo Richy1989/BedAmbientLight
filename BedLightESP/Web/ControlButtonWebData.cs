@@ -1,5 +1,4 @@
-﻿using System;
-namespace BedLightESP.Web
+﻿namespace BedLightESP.Web
 {
     /// <summary>
     /// Represents the data for a control button on the web interface.

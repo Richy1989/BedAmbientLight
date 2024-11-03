@@ -141,7 +141,7 @@ namespace BedLightESP
         {
             Logger.Info("WiFi Networks Scanned!");
             AvailableNetworks = sender.NetworkReport.AvailableNetworks;
-
+            
             // Connect to the network and start the web server when available networks are scanned
             ConnectAndStartWebServer();
         }
