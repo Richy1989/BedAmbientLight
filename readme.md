@@ -26,7 +26,7 @@ This project offers a fun, interactive, and configurable lighting solution for y
 - MQTT broker (optional)
 
 **Note:**
-I would suggest some PSRAM, since the in my experience WebServer is unstable with only 512kB RAM an NanoFramework
+I would suggest some PSRAM, since in my experience, the WebServer is unstable with only 512kB RAM running NanoFramework and a WebServer.
 
 ### Installation
 
