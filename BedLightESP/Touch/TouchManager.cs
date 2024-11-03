@@ -43,7 +43,12 @@ namespace BedLightESP.Touch
         private bool _isInCheck = false;
         private ButtonPosition _currentClick = ButtonPosition.None;
 
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TouchManager"/> class.
+        /// </summary>
+        /// <param name="gpioController">The GPIO controller used to manage GPIO pins.</param>
+        /// <param name="settingsManager">The settings manager used to retrieve application settings.</param>
+        /// <param name="messageService">The message service used to send touch messages.</param>
         public TouchManager(GpioController gpioController, ISettingsManager settingsManager, IMessageService messageService)
         {
             this._gpioController = gpioController;
@@ -199,6 +204,12 @@ namespace BedLightESP.Touch
             }
         }
 
+        /// <summary>
+        /// Fires a touch message with the specified button position, click type, and timestamp.
+        /// </summary>
+        /// <param name="buttonPosition">The position of the button that was touched.</param>
+        /// <param name="type">The type of click detected (single, double, hold, etc.).</param>
+        /// <param name="dateTime">The timestamp of when the touch event occurred.</param>
         private void FireTouchMessage(ButtonPosition buttonPosition, ClickType type, DateTime dateTime)
         {
             Logger.Debug($"Firing Touch Message. Position: {buttonPosition}, Type: {type}, Time: {dateTime}");

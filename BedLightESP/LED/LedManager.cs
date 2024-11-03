@@ -162,12 +162,11 @@ namespace BedLightESP.LED
                 }
                 if (e.ClickType.Equals(ClickType.Double))
                 {
-                    TurnOnLEDStripOneColor(LedStripSide.Whole, defaultColor); // Fixed spelling error
+                    TurnOnLEDStripOneColor(LedStripSide.Whole, defaultColor);
                 }
                 if (e.ClickType.Equals(ClickType.DoubleHold))
                 {
-                    Logger.Info("Random Color!");
-                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelper.CalculateRandomGradientHUE(ledController.Pixels.Length)); // Fixed spelling error
+                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelper.CalculateRandomGradientHUE(ledController.Pixels.Length));
                 }
             }
             else if (e.ButtonPosition == ButtonPosition.Right)
@@ -178,12 +177,11 @@ namespace BedLightESP.LED
                 }
                 if (e.ClickType.Equals(ClickType.Double))
                 {
-                    TurnOnLEDStripOneColor(LedStripSide.Whole, defaultColor); // Fixed spelling error
+                    TurnOnLEDStripOneColor(LedStripSide.Whole, defaultColor); 
                 }
                 if (e.ClickType.Equals(ClickType.DoubleHold))
                 {
-                    Logger.Info("Random Color!");
-                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelper.CalculateRandomGradientHUE(ledController.Pixels.Length)); // Fixed spelling error
+                    TurnOnLEDStripArrayColor(LedStripSide.Whole, ColorHelper.CalculateRandomGradientHUE(ledController.Pixels.Length));
                 }
             }
 

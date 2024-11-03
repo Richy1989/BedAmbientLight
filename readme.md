@@ -18,12 +18,15 @@ This project offers a fun, interactive, and configurable lighting solution for y
 
 ### Prerequisites
 
-- ESP32 microcontroller
+- ESP32 microcontroller 
 - APA102 LED stripe
 - nanoFramework
 - Visual Studio 2022
 - WiFi network
 - MQTT broker (optional)
+
+Note:
+I would suggest some PSRAM, since the in my experience WebServer is unstable with only 512kB RAM an NanoFramework
 
 ### Installation
 
