@@ -9,7 +9,7 @@ namespace BedLightESP.Settings
     /// <summary>
     /// Helper class for managing application settings.
     /// </summary>
-    public class SettingsManager : ISettingsManager
+    internal class SettingsManager : ISettingsManager
     {
         /// <summary>
         /// The path to the configuration file.

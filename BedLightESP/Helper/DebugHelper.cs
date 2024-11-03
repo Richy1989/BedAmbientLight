@@ -19,7 +19,7 @@ namespace BedLightESP.Helper
                 while (true)
                 {
                     Logger.Debug($"Free memory = {nanoFramework.Runtime.Native.GC.Run(true)}");
-                    Thread.Sleep(TimeSpan.FromMinutes(10));
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
                 }
             }).Start();
         }

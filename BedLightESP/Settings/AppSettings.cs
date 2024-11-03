@@ -1,4 +1,5 @@
 using System.Drawing;
+using BedLightESP.Enumerations;
 using BedLightESP.Helper;
 
 namespace BedLightESP.Settings
@@ -6,7 +7,7 @@ namespace BedLightESP.Settings
     /// <summary>
     /// Represents the application settings for BedLightESP.
     /// </summary>
-    public class AppSettings
+    internal class AppSettings
     {
         /// <summary>
         /// Gets or sets the WiFi SSID.
@@ -76,5 +77,10 @@ namespace BedLightESP.Settings
         /// Gets or sets the GPIO pin number for the debug pin.
         /// </summary>
         public int DebugPin { get; set; } = 32;
+
+        /// <summary>
+        /// Gets or sets the type of LED controller.
+        /// </summary>
+        public LedControllerType LedControllerType { get; set; } = LedControllerType.APA102;
     }
 }

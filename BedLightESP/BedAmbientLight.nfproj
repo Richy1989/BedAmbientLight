@@ -18,6 +18,7 @@
   </PropertyGroup>
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.props" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.props')" />
   <ItemGroup>
+    <Compile Include="Enumerations\LedControllerType.cs" />
     <Compile Include="Helper\DebugHelper.cs" />
     <Compile Include="Messages\IMessage.cs" />
     <Compile Include="Messages\IMessageReceiver.cs" />

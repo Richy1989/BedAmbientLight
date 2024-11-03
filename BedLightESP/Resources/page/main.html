@@ -51,6 +51,12 @@
             <label for="colorpicker">Default Color:</label>
             <input id="color_selector" name="color_selector" type="color" value="{default_color}">
             <br>
+            Led Controller:
+            <br>
+            <select name="ledController" id="ledController">
+                <option value="apa102">APA102</option>
+            </select>
+            <br>
             Led Count:
             <br>
             <input type="text" name="ledCount" value="{ledCount}">
@@ -72,10 +78,10 @@
                     <br>
                 </div>
                 <div class="gpio-column">
-                    <label for="leftpin">Left Pin:</label>
+                    <label for="leftpin">Left Button Pin:</label>
                     <input type="text" id="leftpin" name="leftpin" value="{leftpin}">
                     <br>
-                    <label for="rightpin">Right Pin:</label>
+                    <label for="rightpin">Right Button Pin:</label>
                     <input type="text" id="rightpin" name="rightpin" value="{rightpin}">
                     <br>
                     <label for="debugpin">Debug Pin:</label>
@@ -86,11 +92,18 @@
             <input type="submit" value="Save GPIO Settings">
         </fieldset>
     </form>
-    <div class="center-message">
-        <b>{message}</b>
-    </div>
+
+    <div id="messageBubble" class="message-bubble">This is a message bubble!</div>
 
     <script>
+        window.onload = function () {
+            var message = '{message}'
+            if (message.substring(1, 7) == 'message')
+            {
+                showMessage(message);
+            }
+        };
+
         document.getElementById('toggleMQTTPassword').addEventListener('change', function () {
             var passwordField = document.getElementById('mqttPassword');
             if (this.checked) {
@@ -123,6 +136,16 @@
             var ssidDropdown = document.getElementById('ssidDropdown');
             var ssidText = document.getElementById('ssid');
             ssidText.value = ssidDropdown.options[ssidDropdown.selectedIndex].text;
+        }
+
+
+        function showMessage(message) {
+            var messageBubble = document.getElementById('messageBubble');
+            messageBubble.textContent = message;
+            messageBubble.classList.add('show');
+            setTimeout(function () {
+                messageBubble.classList.remove('show');
+            }, 3000); // Hide after 3 seconds
         }
     </script>
 </body>

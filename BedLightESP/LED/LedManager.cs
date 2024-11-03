@@ -45,8 +45,12 @@ namespace BedLightESP.LED
         /// <param name="length">The length of the LED strip.</param>
         public void CreateLEDDevice(int length)
         {
-            // Create the LED controller
-            ledController = new APA102Controller(length, _settingsManager);
+            ledController = _settingsManager.Settings.LedControllerType switch
+            {
+                // Create the LED controller
+                LedControllerType.APA102 => new APA102Controller(length, _settingsManager),
+                _ => throw new System.Exception("Invalid LED controller type."),
+            };
 
             // Turn off the LED strip by default when starting the application
             TurnOffLEDStrip();

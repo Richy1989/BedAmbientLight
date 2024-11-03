@@ -17,7 +17,6 @@ namespace BedLightESP.Helper
         {
             string value = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
             return value;
-
         }
 
         /// <summary>

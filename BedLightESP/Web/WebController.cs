@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -78,11 +77,18 @@ namespace BedLightESP.Web
             {
                 var bytes = Resources.GetBytes(Resources.BinaryResources.mainPage);
                 string page = HttpUtility.UrlDecode(Encoding.UTF8.GetString(Resources.GetBytes(Resources.BinaryResources.mainPage), 0, bytes.Length));
+
+                //Clean memory
+                bytes = null;
+                nanoFramework.Runtime.Native.GC.Run(true);
+
                 returnPage = StringHelper.ReplaceMessage(page, message, "message");
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error creating main page resource. {ex.Message}");
+                var freeMem = nanoFramework.Runtime.Native.GC.Run(true);
+                Logger.Debug($"Free memory = {freeMem}");
+                Logger.Error($"Error creating main page resource. {ex.Message} / Free Mem: {freeMem}");
                 WebServer.OutputHttpCode(e.Context.Response, HttpStatusCode.OK);
                 return;
             }
@@ -120,6 +126,9 @@ namespace BedLightESP.Web
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.RightSidePin}", "rightpin");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.DebugPin}", "debugpin");
             WebServer.OutPutStream(e.Context.Response, returnPage);
+
+            //Clean memory
+            nanoFramework.Runtime.Native.GC.Run(true);
         }
 
         /// <summary>
@@ -136,6 +145,8 @@ namespace BedLightESP.Web
 
             var ssid = (string)hashPars["ssid"];
             var password = (string)hashPars["password"];
+
+            hashPars.Clear();
 
             if (ssid == null || ssid == string.Empty)
             {
@@ -175,6 +186,8 @@ namespace BedLightESP.Web
             var server = (string)hashPars["mqttServer"];
             var port = (string)hashPars["mqttPort"];
 
+            hashPars.Clear();
+
             var settings = _settingsManager.Settings;
             settings.MqttPort = int.Parse(port);
             settings.MqttServer = server;
@@ -182,7 +195,7 @@ namespace BedLightESP.Web
             settings.MqttPassword = password;
 
             //Start a new thread to write the settings
-            new Thread(() => { _settingsManager.WriteSettings(); }).Start();
+            _settingsManager.WriteSettings();
 
             Logger.Info("MQTT settings received.");
             PrintDefaultPage(e, $"MQTT Server: {server} configured");
@@ -201,16 +214,25 @@ namespace BedLightESP.Web
 
             var color = (string)hashPars["color_selector"];
             var ledCount = (string)hashPars["ledCount"];
+            var ledController = (string)hashPars["ledController"];
+
+            hashPars.Clear();
 
             var settings = _settingsManager.Settings;
             try
             {
+                //Add new LED controller types here 
+                if (ledController == "apa102")
+                {
+                    settings.LedControllerType = LedControllerType.APA102;
+                }
+
                 //Set LED count
                 settings.LedCount = int.Parse(ledCount);
                 //Check if this does not throw exception
                 ColorHelper.HexToColor(color);
                 settings.DefaultColor = color;
-                new Thread(() => { _settingsManager.WriteSettings(); }).Start();
+                _settingsManager.WriteSettings();
             }
             catch (Exception ex)
             {
@@ -278,6 +300,8 @@ namespace BedLightESP.Web
             var rightpin = (string)hashPars["rightpin"];
             var debugpin = (string)hashPars["debugpin"];
 
+            hashPars.Clear();
+
             var settings = _settingsManager.Settings;
 
             var mosiPinInt = int.Parse(mosi);
@@ -302,7 +326,7 @@ namespace BedLightESP.Web
             settings.DebugPin = debugPinInt;
 
             //Start a new thread to write the settings
-            new Thread(() => { _settingsManager.WriteSettings(); }).Start();
+            _settingsManager.WriteSettings();
 
             Logger.Info("GPIO settings received.");
             PrintDefaultPage(e, $"GPIO settings configured");
