@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.NetworkInformation;
 using BedLightESP.Logging;
 using Iot.Device.DhcpServer;
@@ -49,9 +48,9 @@ namespace BedLightESP.WiFi
                 Power.RebootDevice();
             }
 
-            Logger.Instance.Info($"Running Soft AP, waiting for client to connect");
-            Logger.Instance.Info($"Soft AP IP address: {GetIP()} and SSID: {SoftApSsid}");
-            Logger.Instance.Info($"DHCP Init Result: {dhcpInitResult}");
+            Logger.Instance?.Info($"Running Soft AP, waiting for client to connect");
+            Logger.Instance?.Info($"Soft AP IP address: {GetIP()} and SSID: {SoftApSsid}");
+            Logger.Instance?.Info($"DHCP Init Result: {dhcpInitResult}");
             return dhcpInitResult;
         }
 
