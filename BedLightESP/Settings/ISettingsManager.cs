@@ -21,8 +21,7 @@
         /// Writes the application settings to the configuration file.
         /// </summary>
         /// <param name="settings">The settings to write.</param>
-        /// <returns>True if the settings were successfully written; otherwise, false.</returns>
-        bool WriteSettings();
+        void WriteSettings();
 
         /// <summary>
         /// Loads the application settings from the configuration file.

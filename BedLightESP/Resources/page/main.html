@@ -112,7 +112,7 @@
     <script>
         window.onload = function () {
             var message = '{message}'
-            if (message.substring(1, 7) == 'message') {
+            if (message.substring(1, 7) != '') {
                 showMessage(message);
             }
         };
@@ -160,7 +160,7 @@
             messageBubble.classList.add('show');
             setTimeout(function () {
                 messageBubble.classList.remove('show');
-            }, 3000); // Hide after 3 seconds
+            }, 5000); // Hide after 3 seconds
         }
 
         // Modal handling

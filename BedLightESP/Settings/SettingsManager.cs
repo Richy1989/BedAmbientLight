@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using BedLightESP.Logging;
 using nanoFramework.Json;
 
@@ -46,28 +47,28 @@ namespace BedLightESP.Settings
         /// Writes the application settings to the configuration file.
         /// </summary>
         /// <param name="settings">The settings to write.</param>
-        /// <returns>True if the settings were successfully written; otherwise, false.</returns>
-        public bool WriteSettings()
+        public void WriteSettings()
         {
-            try
+            new Thread(() =>
             {
-                var configJson = JsonConvert.SerializeObject(Settings);
+                try
+                {
+                    var configJson = JsonConvert.SerializeObject(Settings);
 
-                var json = new FileStream(_configFile, FileMode.Create);
+                    var json = new FileStream(_configFile, FileMode.Create);
 
-                byte[] buffer = Encoding.UTF8.GetBytes(configJson);
-                json.Write(buffer, 0, buffer.Length);
-                json.Dispose();
+                    byte[] buffer = Encoding.UTF8.GetBytes(configJson);
+                    json.Write(buffer, 0, buffer.Length);
+                    json.Dispose();
 
-                _logger.Debug("Settings saved");
+                    _logger.Debug("Settings saved");
 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"Error saving settings: {ex.Message}");
-                return false;
-            }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Error saving settings: {ex.Message}");
+                }
+            }).Start();
         }
 
         /// <summary>

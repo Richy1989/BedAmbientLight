@@ -80,17 +80,11 @@ namespace BedLightESP.Web
                 var bytes = Resources.GetBytes(Resources.BinaryResources.mainPage);
                 string page = HttpUtility.UrlDecode(Encoding.UTF8.GetString(Resources.GetBytes(Resources.BinaryResources.mainPage), 0, bytes.Length));
 
-                //Clean memory
-                bytes = null;
-                nanoFramework.Runtime.Native.GC.Run(true);
-
                 returnPage = StringHelper.ReplaceMessage(page, message, "message");
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                var freeMem = nanoFramework.Runtime.Native.GC.Run(true);
-                _logger.Debug($"Free memory = {freeMem}");
-                _logger.Error($"Error creating main page resource. {ex.Message} / Free Mem: {freeMem}");
+                _logger.Error($"Error loading default page. {ex.Message}");
                 WebServer.OutputHttpCode(e.Context.Response, HttpStatusCode.OK);
                 return;
             }
