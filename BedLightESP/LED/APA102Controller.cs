@@ -2,6 +2,7 @@
 using System.Device.Spi;
 using System.Diagnostics;
 using System.Drawing;
+using BedLightESP.Logging;
 using BedLightESP.Settings;
 using nanoFramework.Hardware.Esp32;
 
@@ -37,10 +38,11 @@ namespace BedLightESP.LED
         /// <param name="settingsManager">The settings manager to configure the SPI pins.</param>
         internal APA102Controller(int ledCount, ISettingsManager settingsManager)
         {
-            Configuration.SetPinFunction(settingsManager.Settings.MosiPin, DeviceFunction.SPI1_MOSI);
-            Configuration.SetPinFunction(settingsManager.Settings.ClkPin, DeviceFunction.SPI1_CLOCK);
+            Configuration.SetPinFunction(settingsManager.Settings.SpiSettings.MosiPin, DeviceFunction.SPI2_MOSI);
+            Configuration.SetPinFunction(settingsManager.Settings.SpiSettings.ClkPin, DeviceFunction.SPI2_CLOCK);
+            Configuration.SetPinFunction(settingsManager.Settings.SpiSettings.MisoPin, DeviceFunction.SPI2_MISO);
 
-            var spiDevice = SpiDevice.Create(new SpiConnectionSettings(1, 12)
+            SpiDevice spiDevice = SpiDevice.Create(new SpiConnectionSettings(settingsManager.Settings.SpiSettings.BusIDPin, settingsManager.Settings.SpiSettings.ChipSelectPin)
             {
                 ClockFrequency = 20_000_000,
                 DataFlow = DataFlow.MsbFirst,

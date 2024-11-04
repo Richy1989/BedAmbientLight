@@ -36,6 +36,7 @@
     <Compile Include="LED\ILedManager.cs" />
     <Compile Include="LED\ILedController.cs" />
     <Compile Include="Settings\ISettingsManager.cs" />
+    <Compile Include="Settings\SpiSettings.cs" />
     <Compile Include="Touch\ITouchManager.cs" />
     <Compile Include="Web\ControlButtonWebData.cs" />
     <Compile Include="Web\IWebManager.cs" />

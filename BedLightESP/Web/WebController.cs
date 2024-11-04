@@ -120,15 +120,13 @@ namespace BedLightESP.Web
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttUsername, "mqttUsername");
             returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttPassword, "mqttPassword");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.LedCount}", "ledCount");
-            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.MosiPin}", "mosi");
-            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.ClkPin}", "clk");
+            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.SpiSettings.MosiPin}", "mosi");
+            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.SpiSettings.MisoPin}", "miso");
+            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.SpiSettings.ClkPin}", "clk");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.LeftSidePin}", "leftpin");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.RightSidePin}", "rightpin");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.DebugPin}", "debugpin");
             WebServer.OutPutStream(e.Context.Response, returnPage);
-
-            //Clean memory
-            nanoFramework.Runtime.Native.GC.Run(true);
         }
 
         /// <summary>
@@ -286,7 +284,6 @@ namespace BedLightESP.Web
             Logger.Info($"Control Button {button.Side} pressed.");
         }
 
-        //POST method for gpio_settings route
         [Route("gpio_settings")]
         [Method("POST")]
         public void PostSetGpioSettings(WebServerEventArgs e)
@@ -296,6 +293,7 @@ namespace BedLightESP.Web
 
             var mosi = (string)hashPars["mosi"];
             var clk = (string)hashPars["clk"];
+            var miso = (string)hashPars["miso"];
             var leftpin = (string)hashPars["leftpin"];
             var rightpin = (string)hashPars["rightpin"];
             var debugpin = (string)hashPars["debugpin"];
@@ -306,12 +304,13 @@ namespace BedLightESP.Web
 
             var mosiPinInt = int.Parse(mosi);
             var clkPinInt = int.Parse(clk);
+            var misoPinInt = int.Parse(miso);
             var leftSidePinInt = int.Parse(leftpin);
             var rightSidePinInt = int.Parse(rightpin);
             var debugPinInt = int.Parse(debugpin);
 
             //check if all greater 0 and smaller 49
-            if (mosiPinInt < 0 || mosiPinInt > 49 || clkPinInt < 0 || clkPinInt > 49 || leftSidePinInt < 0 || leftSidePinInt > 49 || rightSidePinInt < 0 || rightSidePinInt > 49 || debugPinInt < 0 || debugPinInt > 49)
+            if (mosiPinInt < 0 || mosiPinInt > 49 || clkPinInt < 0 || clkPinInt > 49 || misoPinInt < 0 || misoPinInt > 49 || leftSidePinInt < 0 || leftSidePinInt > 49 || rightSidePinInt < 0 || rightSidePinInt > 49 || debugPinInt < 0 || debugPinInt > 49)
             {
                 Logger.Error("GPIO settings out of range.");
                 PrintDefaultPage(e, "GPIO settings out of range.");
@@ -319,8 +318,9 @@ namespace BedLightESP.Web
             }
 
             //assign the values to settings 
-            settings.MosiPin = mosiPinInt;
-            settings.ClkPin = clkPinInt;
+            settings.SpiSettings.MosiPin = mosiPinInt;
+            settings.SpiSettings.ClkPin = clkPinInt;
+            settings.SpiSettings.MisoPin = misoPinInt;
             settings.LeftSidePin = leftSidePinInt;
             settings.RightSidePin = rightSidePinInt;
             settings.DebugPin = debugPinInt;

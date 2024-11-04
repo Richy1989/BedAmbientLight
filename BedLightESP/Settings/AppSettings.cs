@@ -57,30 +57,25 @@ namespace BedLightESP.Settings
         /// <summary>
         /// Gets or sets the GPIO pin number for the left side LEDs.
         /// </summary>
-        public int LeftSidePin { get; set; } = 34;
+        public int LeftSidePin { get; set; } = 6;
         /// <summary>
         /// Gets or sets the GPIO pin number for the right side LEDs.
         /// </summary>
-        public int RightSidePin { get; set; } = 35;
-
-        /// <summary>
-        /// Gets or sets the GPIO pin number for the MOSI (Master Out Slave In).
-        /// </summary>
-        public int MosiPin { get; set; } = 23;
-
-        /// <summary>
-        /// Gets or sets the GPIO pin number for the clock (CLK).
-        /// </summary>
-        public int ClkPin { get; set; } = 18;
+        public int RightSidePin { get; set; } = 7;
 
         /// <summary>
         /// Gets or sets the GPIO pin number for the debug pin.
         /// </summary>
-        public int DebugPin { get; set; } = 32;
+        public int DebugPin { get; set; } = 15;
 
         /// <summary>
         /// Gets or sets the type of LED controller.
         /// </summary>
         public LedControllerType LedControllerType { get; set; } = LedControllerType.APA102;
+
+        /// <summary>
+        /// Gets or sets the SPI settings.
+        /// </summary>
+        public SpiSettings SpiSettings { get; set; } = new SpiSettings();
     }
 }
