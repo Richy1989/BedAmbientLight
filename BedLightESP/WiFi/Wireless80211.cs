@@ -51,8 +51,8 @@ namespace BedLightESP.WiFi
                     return true;
                 }
 
-                Logger.Instance.Info($"Connected to WiFi {GetConfiguration().Ssid} - {WifiNetworkHelper.WifiAdapter}");
-                Logger.Instance.Info($"IP Address: {GetInterface().IPv4Address}"); 
+                Logger.Instance?.Info($"Connected to WiFi {GetConfiguration().Ssid} - {WifiNetworkHelper.WifiAdapter}");
+                Logger.Instance?.Info($"IP Address: {GetInterface().IPv4Address}"); 
             }
             else
             {
@@ -104,7 +104,7 @@ namespace BedLightESP.WiFi
             wa.Disconnect();
 
             CancellationTokenSource cs = new(30_000);
-            Logger.Instance.Debug("ConnectDHCP");
+            Logger.Instance?.Debug("ConnectDHCP");
             WifiNetworkHelper.Disconnect();
 
             // Reconfigure properly the normal WiFi
@@ -125,7 +125,7 @@ namespace BedLightESP.WiFi
                 // Bug in network helper, we've most likely try to connect before, let's make it manual
                 var res = wa.Connect(ssid, WifiReconnectionKind.Automatic, password);
                 success = res.ConnectionStatus == WifiConnectionStatus.Success;
-                Logger.Instance.Debug($"Connected: {res.ConnectionStatus}");
+                Logger.Instance?.Debug($"Connected: {res.ConnectionStatus}");
             }
 
             return success;

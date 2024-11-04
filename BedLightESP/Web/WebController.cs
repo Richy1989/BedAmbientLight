@@ -354,8 +354,6 @@ namespace BedLightESP.Web
             e.Context.Response.ContentType = "application/json";
             var jsonResponse = JsonConvert.SerializeObject(logData);
 
-            _logger.Debug(jsonResponse);
-
             WebServer.OutPutStream(e.Context.Response, jsonResponse);
         }
     }
