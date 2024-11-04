@@ -12,10 +12,11 @@ namespace BedLightESP.LED
     internal class LEDManager : ILedManager, IMessageReceiver
     {
         private readonly ISettingsManager _settingsManager;
+        private ILedController ledController;
+
         private bool leftIsOn = false;
         private bool rightIsOn = false;
         private bool wholeIsOn = false;
-        private ILedController ledController;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LEDManager"/> class.
