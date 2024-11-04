@@ -12,7 +12,12 @@ namespace BedLightESP.Settings
     /// </summary>
     internal class SettingsManager : ISettingsManager
     {
-        private readonly ILogger _logger;    
+        private readonly ILogger _logger;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SettingsManager"/> class.
+        /// </summary>
+        /// <param name="logger">The logger used to log messages.</param>
         public SettingsManager(ILogger logger)
         {
             _logger = logger;

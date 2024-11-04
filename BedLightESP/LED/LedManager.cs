@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 using BedLightESP.Enumerations;
 using BedLightESP.Helper;
-using BedLightESP.Logging;
 using BedLightESP.Messages;
 using BedLightESP.Settings;
 
@@ -21,12 +20,13 @@ namespace BedLightESP.LED
         /// <summary>
         /// Initializes a new instance of the <see cref="LEDManager"/> class.
         /// </summary>
-        /// <param name="side">The side of the LED strip to turn on.</param>
-        /// <param name="color">The array of colors.</param>
+        /// <param name="settingsManager">The settings manager.</param>
+        /// <param name="messageService">The message service.</param>
         public LEDManager(ISettingsManager settingsManager, IMessageService messageService)
         {
             this._settingsManager = settingsManager;
 
+            // Register the LED manager as a message receiver
             messageService.RegisterClient(MessageType.Touch, this);
         }
 

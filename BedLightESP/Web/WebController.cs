@@ -23,6 +23,13 @@ namespace BedLightESP.Web
         private readonly ISettingsManager _settingsManager;
         private readonly IMessageService _messageService;
         private readonly ILogger _logger;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WebController"/> class.
+        /// </summary>
+        /// <param name="settingsManager"></param>
+        /// <param name="messageService"></param>
+        /// <param name="logger"></param>
         public WebController(ISettingsManager settingsManager, IMessageService messageService, ILogger logger)
         {
             _logger = logger;

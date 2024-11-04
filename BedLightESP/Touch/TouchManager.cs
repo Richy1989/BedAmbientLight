@@ -43,6 +43,7 @@ namespace BedLightESP.Touch
         /// <param name="gpioController">The GPIO controller used to manage GPIO pins.</param>
         /// <param name="settingsManager">The settings manager used to retrieve application settings.</param>
         /// <param name="messageService">The message service used to send touch messages.</param>
+        /// <param name="logger">The logger used to log messages.</param>
         public TouchManager(GpioController gpioController, ISettingsManager settingsManager, IMessageService messageService, ILogger logger)
         {
             this._logger = logger;

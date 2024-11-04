@@ -12,7 +12,7 @@ namespace BedLightESP.Web
     {
         private WebServerDI server;
         private IServiceProvider ServiceProvider { get; set; }
-        private ILogger Logger { get; set; }
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Gets a value indicating whether the web server is running.
@@ -21,9 +21,10 @@ namespace BedLightESP.Web
 
         /// <summary>Initializes a new instance of the <see cref="WebManager"/> class.</summary>
         /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="logger">The logger.</param>
         public WebManager(IServiceProvider serviceProvider, ILogger logger)
         {
-            Logger = logger;
+            _logger = logger;
             ServiceProvider = serviceProvider;
         }
 
@@ -38,7 +39,7 @@ namespace BedLightESP.Web
             {
                 server = new(80, HttpProtocol.Http, new Type[] { typeof(WebController) }, ServiceProvider);
                 server.Start();
-                Logger.Debug("Web server started.");
+                _logger.Debug("Web server started.");
                 IsRunning = true;
                 Thread.Sleep(Timeout.Infinite);
             }).Start();
@@ -53,7 +54,7 @@ namespace BedLightESP.Web
         /// </remarks>
         public void Stop()
         {
-            Logger.Debug("Stopping web server.");
+            _logger.Debug("Stopping web server.");
             server.Stop();
             IsRunning = false;
         }
