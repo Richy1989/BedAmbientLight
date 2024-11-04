@@ -50,7 +50,7 @@ namespace BedLightESP.WiFi
             }
 
             Logger.Instance.Info($"Running Soft AP, waiting for client to connect");
-            Logger.Instance.Info($"Soft AP IP address: {GetIP()}");
+            Logger.Instance.Info($"Soft AP IP address: {GetIP()} and SSID: {SoftApSsid}");
             Logger.Instance.Info($"DHCP Init Result: {dhcpInitResult}");
             return dhcpInitResult;
         }
