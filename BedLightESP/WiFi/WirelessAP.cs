@@ -31,7 +31,7 @@ namespace BedLightESP.WiFi
             if (Setup() == false)
             {
                 // Reboot device to Activate Access Point on restart
-                Logger.Warning($"Setup Soft AP, Rebooting device");
+                Logger.Instance.Warning($"Setup Soft AP, Rebooting device");
                 Power.RebootDevice();
             }
 
@@ -44,14 +44,14 @@ namespace BedLightESP.WiFi
             
             if (!dhcpInitResult)
             {
-                Logger.Error($"Error initializing DHCP server.");
+                Logger.Instance.Error($"Error initializing DHCP server.");
                 // This happens after a very freshly flashed device
                 Power.RebootDevice();
             }
 
-            Logger.Info($"Running Soft AP, waiting for client to connect");
-            Logger.Info($"Soft AP IP address: {GetIP()}");
-            Logger.Info($"DHCP Init Result: {dhcpInitResult}");
+            Logger.Instance.Info($"Running Soft AP, waiting for client to connect");
+            Logger.Instance.Info($"Soft AP IP address: {GetIP()}");
+            Logger.Instance.Info($"DHCP Init Result: {dhcpInitResult}");
             return dhcpInitResult;
         }
 

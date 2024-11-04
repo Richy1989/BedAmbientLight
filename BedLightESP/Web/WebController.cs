@@ -22,8 +22,10 @@ namespace BedLightESP.Web
     {
         private readonly ISettingsManager _settingsManager;
         private readonly IMessageService _messageService;
-        public WebController(ISettingsManager settingsManager, IMessageService messageService)
+        private readonly ILogger _logger;
+        public WebController(ISettingsManager settingsManager, IMessageService messageService, ILogger logger)
         {
+            _logger = logger;
             _settingsManager = settingsManager;
             _messageService = messageService;
         }
@@ -87,8 +89,8 @@ namespace BedLightESP.Web
             catch (Exception ex)
             {
                 var freeMem = nanoFramework.Runtime.Native.GC.Run(true);
-                Logger.Debug($"Free memory = {freeMem}");
-                Logger.Error($"Error creating main page resource. {ex.Message} / Free Mem: {freeMem}");
+                _logger.Debug($"Free memory = {freeMem}");
+                _logger.Error($"Error creating main page resource. {ex.Message} / Free Mem: {freeMem}");
                 WebServer.OutputHttpCode(e.Context.Response, HttpStatusCode.OK);
                 return;
             }
@@ -137,7 +139,7 @@ namespace BedLightESP.Web
         [Method("POST")]
         public void PostSetWiFiSettings(WebServerEventArgs e)
         {
-            Logger.Debug(e.Context.Request.RawUrl);
+            _logger.Debug(e.Context.Request.RawUrl);
 
             Hashtable hashPars = WebHelper.ParseParamsFromStream(e.Context.Request.InputStream);
 
@@ -148,7 +150,7 @@ namespace BedLightESP.Web
 
             if (ssid == null || ssid == string.Empty)
             {
-                Logger.Info("SSID is empty");
+                _logger.Info("SSID is empty");
                 PrintDefaultPage(e, "SSID is empty");
                 return;
             }
@@ -159,12 +161,12 @@ namespace BedLightESP.Web
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error setting wireless parameters: {ex.Message}");
+                _logger.Error($"Error setting wireless parameters: {ex.Message}");
                 PrintDefaultPage(e, $"Error setting wireless parameters: {ex.Message}");
                 return;
             }
 
-            Logger.Info($"Wireless parameters SSID:{ssid} PASSWORD:{password}");
+            _logger.Info($"Wireless parameters SSID:{ssid} PASSWORD:{password}");
             PrintDefaultPage(e, $"Set wireless parameters SSID: {ssid} PASSWORD: {password}");
         }
 
@@ -176,7 +178,7 @@ namespace BedLightESP.Web
         [Method("POST")]
         public void PostSetMQTTSettings(WebServerEventArgs e)
         {
-            Logger.Debug(e.Context.Request.RawUrl);
+            _logger.Debug(e.Context.Request.RawUrl);
             Hashtable hashPars = WebHelper.ParseParamsFromStream(e.Context.Request.InputStream);
 
             var user = (string)hashPars["mqttUsername"];
@@ -195,7 +197,7 @@ namespace BedLightESP.Web
             //Start a new thread to write the settings
             _settingsManager.WriteSettings();
 
-            Logger.Info("MQTT settings received.");
+            _logger.Info("MQTT settings received.");
             PrintDefaultPage(e, $"MQTT Server: {server} configured");
         }
 
@@ -207,7 +209,7 @@ namespace BedLightESP.Web
         [Method("POST")]
         public void PostSetLEDSettings(WebServerEventArgs e)
         {
-            Logger.Debug(e.Context.Request.RawUrl);
+            _logger.Debug(e.Context.Request.RawUrl);
             Hashtable hashPars = WebHelper.ParseParamsFromStream(e.Context.Request.InputStream);
 
             var color = (string)hashPars["color_selector"];
@@ -234,12 +236,12 @@ namespace BedLightESP.Web
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error setting LED settings: {ex.Message}");
+                _logger.Error($"Error setting LED settings: {ex.Message}");
                 PrintDefaultPage(e, $"Error setting LED settings: {ex.Message}");
                 return;
             }
 
-            Logger.Info($"Selected LED settings to Count {ledCount} and Color {color}.");
+            _logger.Info($"Selected LED settings to Count {ledCount} and Color {color}.");
             PrintDefaultPage(e, $"Selected LED settings to Count {ledCount} and Color {color}.");
         }
 
@@ -247,7 +249,7 @@ namespace BedLightESP.Web
         [Method("POST")]
         public void PostControlButtonPressed(WebServerEventArgs e)
         {
-            Logger.Debug(e.Context.Request.RawUrl);
+            _logger.Debug(e.Context.Request.RawUrl);
 
             ControlButtonWebData button = null;
             try
@@ -256,7 +258,7 @@ namespace BedLightESP.Web
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error parsing control button data: {ex.Message}");
+                _logger.Error($"Error parsing control button data: {ex.Message}");
                 PrintDefaultPage(e, $"Error parsing control button data: {ex.Message}");
                 return;
             }
@@ -281,14 +283,14 @@ namespace BedLightESP.Web
                 }
             }).Start();
 
-            Logger.Info($"Control Button {button.Side} pressed.");
+            _logger.Info($"Control Button {button.Side} pressed.");
         }
 
         [Route("gpio_settings")]
         [Method("POST")]
         public void PostSetGpioSettings(WebServerEventArgs e)
         {
-            Logger.Debug(e.Context.Request.RawUrl);
+            _logger.Debug(e.Context.Request.RawUrl);
             Hashtable hashPars = WebHelper.ParseParamsFromStream(e.Context.Request.InputStream);
 
             var mosi = (string)hashPars["mosi"];
@@ -312,7 +314,7 @@ namespace BedLightESP.Web
             //check if all greater 0 and smaller 49
             if (mosiPinInt < 0 || mosiPinInt > 49 || clkPinInt < 0 || clkPinInt > 49 || misoPinInt < 0 || misoPinInt > 49 || leftSidePinInt < 0 || leftSidePinInt > 49 || rightSidePinInt < 0 || rightSidePinInt > 49 || debugPinInt < 0 || debugPinInt > 49)
             {
-                Logger.Error("GPIO settings out of range.");
+                _logger.Error("GPIO settings out of range.");
                 PrintDefaultPage(e, "GPIO settings out of range.");
                 return;
             }
@@ -328,8 +330,33 @@ namespace BedLightESP.Web
             //Start a new thread to write the settings
             _settingsManager.WriteSettings();
 
-            Logger.Info("GPIO settings received.");
+            _logger.Info("GPIO settings received.");
             PrintDefaultPage(e, $"GPIO settings configured");
+        }
+
+        /// <summary>
+        /// Handles the request to get log messages.
+        /// </summary>
+        /// <param name="e">The event arguments containing the context of the web request.</param>
+        [Route("get_logs")]
+        [Method("GET")]
+        public void GetLogs(WebServerEventArgs e)
+        {
+            _logger.Debug(e.Context.Request.RawUrl);
+
+            // Assuming _logger has a method to get log messages
+            var logs = _logger.GetLogMessages();
+            LogsWebData logData = new()
+            {
+                Logs = logs
+            };
+
+            e.Context.Response.ContentType = "application/json";
+            var jsonResponse = JsonConvert.SerializeObject(logData);
+
+            _logger.Debug(jsonResponse);
+
+            WebServer.OutPutStream(e.Context.Response, jsonResponse);
         }
     }
 }

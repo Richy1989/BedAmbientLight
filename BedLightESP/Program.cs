@@ -27,6 +27,7 @@ namespace BedLightESP
         public static WifiAvailableNetwork[] AvailableNetworks { get; set; } = new WifiAvailableNetwork[0];
 
         private static ISettingsManager _settingsManager;
+        private static ILogger _logger;
         private static IWebManager _server;
         private static int _connectedCount = 0;
         private static GpioController gpio;
@@ -36,9 +37,11 @@ namespace BedLightESP
         {
             Debug.WriteLine("Hello from Bed Ambient Light!");
 
-            DebugHelper.StartMemoryDumpTask();
-
             ServiceProvider services = ConfigureServices();
+
+            _logger = services.GetRequiredService(typeof(ILogger)) as ILogger;
+
+            DebugHelper.StartMemoryDumpTask();
 
             //Load the settings
             _settingsManager = services.GetRequiredService(typeof(ISettingsManager)) as ISettingsManager;
@@ -74,17 +77,17 @@ namespace BedLightESP
             // Start WiFi scan
             try
             {
-                Logger.Info("Starting Wi-Fi scan");
+                _logger.Info("Starting Wi-Fi scan");
                 if (Wireless80211.EnableForScan())
                 {
-                    Logger.Info("Sleeping 4 sec. to ensure wifi interface is enabled.");
+                    _logger.Info("Sleeping 4 sec. to ensure wifi interface is enabled.");
                     Thread.Sleep(4000);
                 }
                 wifi.ScanAsync();
             }
             catch (Exception ex)
             {
-                Logger.Error($"Failure starting a scan operation: {ex.Message}");
+                _logger.Error($"Failure starting a scan operation: {ex.Message}");
                 //Try to bring the Wifi or AP up anyways
                 ConnectAndStartWebServer();
             }
@@ -97,6 +100,7 @@ namespace BedLightESP
         private static ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
+                .AddSingleton(typeof(ILogger), typeof(Logger))
                 .AddSingleton(typeof(GpioController))
                 .AddSingleton(typeof(IMessageService), typeof(MessageService))
                 .AddSingleton(typeof(ITouchManager), typeof(TouchManager))
@@ -120,14 +124,14 @@ namespace BedLightESP
             // Start WiFi Manager
             if (Wireless80211.IsEnabled() && !forceAP)
             {
-                Logger.Info("Wireless80211 is enabled");
+                _logger.Info("Wireless80211 is enabled");
                 Wireless80211.ConnectOrSetAp();
                 if (!_server.IsRunning)
                     _server.Start();
             }
             else
             {
-                Logger.Info("Wireless80211 is not enabled");
+                _logger.Info("Wireless80211 is not enabled");
                 WirelessAP.SetWifiAp();
             }
         }
@@ -139,7 +143,7 @@ namespace BedLightESP
         /// <param name="e">The event arguments.</param>
         private static void Wifi_AvailableNetworksChanged(WifiAdapter sender, object e)
         {
-            Logger.Info("WiFi Networks Scanned!");
+            _logger.Info("WiFi Networks Scanned!");
             AvailableNetworks = sender.NetworkReport.AvailableNetworks;
 
             // Connect to the network and start the web server when available networks are scanned

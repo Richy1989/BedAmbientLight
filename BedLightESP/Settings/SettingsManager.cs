@@ -11,6 +11,11 @@ namespace BedLightESP.Settings
     /// </summary>
     internal class SettingsManager : ISettingsManager
     {
+        private readonly ILogger _logger;    
+        public SettingsManager(ILogger logger)
+        {
+            _logger = logger;
+        }   
         /// <summary>
         /// The path to the configuration file.
         /// </summary>
@@ -54,13 +59,13 @@ namespace BedLightESP.Settings
                 json.Write(buffer, 0, buffer.Length);
                 json.Dispose();
 
-                Logger.Debug("Settings saved");
+                _logger.Debug("Settings saved");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error saving settings: {ex.Message}");
+                _logger.Error($"Error saving settings: {ex.Message}");
                 return false;
             }
         }
@@ -78,7 +83,7 @@ namespace BedLightESP.Settings
                     var json = new FileStream(_configFile, FileMode.Open);
                     var settings = (AppSettings)JsonConvert.DeserializeObject(json, typeof(AppSettings));
                     Settings = settings;
-                    Logger.Info($"Settings read.");
+                    _logger.Info($"Settings read.");
                     json.Close();
                     json.Dispose();
                     return;
@@ -87,10 +92,10 @@ namespace BedLightESP.Settings
             catch (Exception ex)
             {
                 // Handle exceptions (e.g., log the error)
-                Logger.Error($"Error loading settings: {ex.Message}");
+                _logger.Error($"Error loading settings: {ex.Message}");
             }
 
-            Logger.Info("No config found. Creating new one.");
+            _logger.Info("No config found. Creating new one.");
             // Return default settings if file does not exist or an error occurred
             Settings = new AppSettings();
         }

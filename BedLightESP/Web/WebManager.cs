@@ -12,6 +12,7 @@ namespace BedLightESP.Web
     {
         private WebServerDI server;
         private IServiceProvider ServiceProvider { get; set; }
+        private ILogger Logger { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the web server is running.
@@ -20,8 +21,9 @@ namespace BedLightESP.Web
 
         /// <summary>Initializes a new instance of the <see cref="WebManager"/> class.</summary>
         /// <param name="serviceProvider">The service provider.</param>
-        public WebManager(IServiceProvider serviceProvider)
+        public WebManager(IServiceProvider serviceProvider, ILogger logger)
         {
+            Logger = logger;
             ServiceProvider = serviceProvider;
         }
 

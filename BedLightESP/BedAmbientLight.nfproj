@@ -20,6 +20,7 @@
   <ItemGroup>
     <Compile Include="Enumerations\LedControllerType.cs" />
     <Compile Include="Helper\DebugHelper.cs" />
+    <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Messages\IMessage.cs" />
     <Compile Include="Messages\IMessageReceiver.cs" />
     <Compile Include="Messages\IMessageService.cs" />
@@ -45,6 +46,7 @@
     <Compile Include="Enumerations\ButtonPosition.cs" />
     <Compile Include="Enumerations\ClickType.cs" />
     <Compile Include="Touch\TouchManager.cs" />
+    <Compile Include="Web\LogsWebData.cs" />
     <Compile Include="Web\WebController.cs" />
     <Compile Include="Web\WebManager.cs" />
     <Compile Include="Web\WebManagerDI.cs" />

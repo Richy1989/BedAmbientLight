@@ -98,15 +98,26 @@
 
     <div id="messageBubble" class="message-bubble">This is a message bubble!</div>
 
+    <!-- The Modal -->
+    <div id="logModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Log Messages</h2>
+            <div id="logMessages"></div>
+        </div>
+    </div>
+
+    <button id="logButton">Show Logs</button>
+
     <script>
         window.onload = function () {
             var message = '{message}'
-            if (message.substring(1, 7) == 'message')
-            {
+            if (message.substring(1, 7) == 'message') {
                 showMessage(message);
             }
         };
 
+        /*
         document.getElementById('toggleMQTTPassword').addEventListener('change', function () {
             var passwordField = document.getElementById('mqttPassword');
             if (this.checked) {
@@ -115,6 +126,7 @@
                 passwordField.type = 'password';
             }
         });
+        */
 
         document.getElementById('toggleSSIDPassword').addEventListener('change', function () {
             var passwordField = document.getElementById('ssidPassword');
@@ -149,6 +161,31 @@
             setTimeout(function () {
                 messageBubble.classList.remove('show');
             }, 3000); // Hide after 3 seconds
+        }
+
+        // Modal handling
+        var modal = document.getElementById("logModal");
+        var btn = document.getElementById("logButton");
+        var span = document.getElementsByClassName("close")[0];
+
+        btn.onclick = function () {
+            fetch('/get_logs')
+                .then(response => response.json())
+                .then(data => {
+                    var logMessages = document.getElementById("logMessages");
+                    logMessages.innerHTML = data.Logs.join('<br>');
+                    modal.style.display = "block";
+                });
+        }
+
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
         }
     </script>
 </body>

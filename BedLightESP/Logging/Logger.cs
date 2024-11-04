@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Diagnostics;
 
 namespace BedLightESP.Logging
@@ -14,27 +15,76 @@ namespace BedLightESP.Logging
     /// <summary>
     /// Provides logging functionality with different log levels.
     /// </summary>
-    public static class Logger
+    internal class Logger : ILogger
     {
+        /// <summary>
+        /// Gets or sets the instance of the logger.
+        /// </summary>
+        public static ILogger Instance { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Logger"/> class and sets the instance.
+        /// </summary>
+        public Logger()
+        {
+            Instance = this;
+        }
+
+        /// <summary>
+        /// Buffer to store the last 20 log messages.
+        /// </summary>
+        private readonly IList lastMessages = new ArrayList();
+
+        /// <summary>
+        /// Index to keep track of the last message in the buffer.
+        /// </summary>
+        private int lastMessageIndex = 0;
+        private bool listIsFull = false;
+
         /// <summary>
         /// Logs a message with the specified log level.
         /// </summary>
         /// <param name="level">The level of the log message.</param>
         /// <param name="message">The message to log.</param>
-        public static void Log(LogLevel level, string message)
+        private void Log(LogLevel level, string message)
         {
             if (Debugger.IsAttached)
             {
                 string logMessage = $"{DateTime.UtcNow.ToString("o")} [{GetLogLevelString(level)}] {message}";
+                AddToBuffer(logMessage);
                 System.Diagnostics.Debug.WriteLine(logMessage);
             }
+        }
+
+        /// <summary>
+        /// Adds a message to the buffer.
+        /// </summary>
+        /// <param name="message">The message to add to the buffer.</param>
+        private void AddToBuffer(string message)
+        {
+            if (lastMessages.Count >= 20)
+            {
+                listIsFull = true;
+                lastMessageIndex = 0;
+            }
+
+            if(!listIsFull)
+            {
+                lastMessages.Add(message);
+            }
+            else
+            {
+                lastMessages[lastMessageIndex] = message;
+
+            }
+            lastMessageIndex++;
         }
 
         /// <summary>
         /// Logs an informational message.
         /// </summary>
         /// <param name="message">The informational message to log.</param>
-        public static void Info(string message)
+        public void Info(string message)
         {
             Log(LogLevel.Info, message);
         }
@@ -43,7 +93,7 @@ namespace BedLightESP.Logging
         /// Logs a warning message.
         /// </summary>
         /// <param name="message">The warning message to log.</param>
-        public static void Warning(string message)
+        public void Warning(string message)
         {
             Log(LogLevel.Warning, message);
         }
@@ -52,7 +102,7 @@ namespace BedLightESP.Logging
         /// Logs an error message.
         /// </summary>
         /// <param name="message">The error message to log.</param>
-        public static void Error(string message)
+        public void Error(string message)
         {
             Log(LogLevel.Error, message);
         }
@@ -61,7 +111,7 @@ namespace BedLightESP.Logging
         /// Logs a debug message.
         /// </summary>
         /// <param name="message">The debug message to log.</param>
-        public static void Debug(string message)
+        public void Debug(string message)
         {
             Log(LogLevel.Debug, message);
         }
@@ -71,7 +121,7 @@ namespace BedLightESP.Logging
         /// </summary>
         /// <param name="level">The log level to convert.</param>
         /// <returns>A string representation of the log level.</returns>
-        private static string GetLogLevelString(LogLevel level)
+        private string GetLogLevelString(LogLevel level)
         {
             if (level == LogLevel.Info)
             {
@@ -93,6 +143,15 @@ namespace BedLightESP.Logging
             {
                 return "UNKNOWN";
             }
+        }
+
+        /// <summary>
+        /// Retrieves the last 20 log messages.
+        /// </summary>
+        /// <returns>An array of the last 20 log messages.</returns>
+        public IList GetLogMessages()
+        {
+            return lastMessages;
         }
     }
 }

@@ -37,8 +37,8 @@ namespace BedLightESP.Helper
         public static void PrintMemory()
         {
             NativeMemory.GetMemoryInfo(NativeMemory.MemoryType.Internal, out uint totalSize, out uint totalFree, out uint largestFree);
-            Logger.Debug($"Internal Mem:  Total Internal: {totalSize} Free: {totalFree} Largest: {largestFree}");
-            Logger.Debug($"Free nanoFramework Mem:  {nanoFramework.Runtime.Native.GC.Run(false)}");
+            Logger.Instance?.Debug($"Internal Mem:  Total Internal: {totalSize} Free: {totalFree} Largest: {largestFree}");
+            Logger.Instance?.Debug($"Free nanoFramework Mem:  {nanoFramework.Runtime.Native.GC.Run(false)}");
         }
     }
 }
