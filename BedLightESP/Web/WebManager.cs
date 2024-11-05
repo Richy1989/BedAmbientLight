@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using BedLightESP.Logging;
 using nanoFramework.WebServer;
@@ -13,6 +14,7 @@ namespace BedLightESP.Web
         private WebServerDI server;
         private IServiceProvider ServiceProvider { get; set; }
         private readonly ILogger _logger;
+        private Thread runner;
 
         /// <summary>
         /// Gets a value indicating whether the web server is running.
@@ -33,16 +35,25 @@ namespace BedLightESP.Web
         /// </summary>
         public void Start()
         {
+
             if (IsRunning) return;
 
-            new Thread(() =>
+            runner = new Thread(() =>
             {
-                server = new(80, HttpProtocol.Http, new Type[] { typeof(WebController) }, ServiceProvider);
-                server.Start();
-                _logger.Debug("Web server started.");
-                IsRunning = true;
-                Thread.Sleep(Timeout.Infinite);
-            }).Start();
+                try
+                {
+                    server = new(80, HttpProtocol.Http, new Type[] { typeof(WebController) }, ServiceProvider);
+                    server.Start();
+                    _logger.Debug("Web server started.");
+                    IsRunning = true;
+                    Thread.Sleep(Timeout.Infinite);
+                }
+                catch (ThreadAbortException)
+                {
+                }
+            });
+
+            runner.Start();
         }
 
 
@@ -57,6 +68,7 @@ namespace BedLightESP.Web
             _logger.Debug("Stopping web server.");
             server.Stop();
             IsRunning = false;
+            runner?.Abort();
         }
     }
 }

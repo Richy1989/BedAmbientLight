@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -89,7 +91,7 @@ namespace BedLightESP.Web
 
                 returnPage = StringHelper.ReplaceMessage(page, message, "message");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.Error($"Error loading default page. {ex.Message}");
                 WebServer.OutputHttpCode(e.Context.Response, HttpStatusCode.OK);
@@ -129,7 +131,15 @@ namespace BedLightESP.Web
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.LeftSidePin}", "leftpin");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.RightSidePin}", "rightpin");
             returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.DebugPin}", "debugpin");
-            WebServer.OutPutStream(e.Context.Response, returnPage);
+
+            try
+            {
+                WebServer.OutPutStream(e.Context.Response, returnPage);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Error sending default page. {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -356,6 +366,43 @@ namespace BedLightESP.Web
             var jsonResponse = JsonConvert.SerializeObject(logData);
 
             WebServer.OutPutStream(e.Context.Response, jsonResponse);
+        }
+
+        /// <summary>
+        /// Handles the POST request to upload a file.
+        /// </summary>
+        /// <param name="e">The event arguments containing the context of the web request.</param>
+        [Route("upload_file")]
+        [Method("POST")]
+        public void PostUploadFile(WebServerEventArgs e)
+        {
+            _logger.Debug(e.Context.Request.RawUrl);
+
+            try
+            {
+                string path = WebHelper.ReceiveFileOverHTTP(e.Context.Request, "I:\\");
+
+                DirectoryInfo di = new("I:\\");
+
+                foreach (var file in di.GetFiles())
+                {
+                    _logger.Debug($"Found file: {file.Name} size: {file.Length} Byte");
+                }
+
+                FileStream fs = new(path, FileMode.Open, FileAccess.Read);
+                byte[] fileBytes = new byte[fs.Length];
+                fs.Read(fileBytes, 0, fileBytes.Length);
+
+                WebServer.SendFileOverHTTP(e.Context.Response, path, fileBytes);
+
+                //e.Context.Response.StatusCode = (int)HttpStatusCode.OK;
+                //WebServer.OutPutStream(e.Context.Response, "");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Error uploading file: {ex.Message}");
+            }
         }
     }
 }

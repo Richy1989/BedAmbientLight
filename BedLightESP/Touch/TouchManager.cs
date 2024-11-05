@@ -20,8 +20,8 @@ namespace BedLightESP.Touch
         // Event handler for button press events
         //public event ButtonPressedEventHandler ButtonPressed;
 
-        private readonly int ButtonLeftPin; // GPIO pin number for the touch sensor / default 34 
-        private readonly int ButtonRightPin; // GPIO pin number for the touch sensor / default 35
+        private int ButtonLeftPin; // GPIO pin number for the touch sensor / default 34 
+        private int ButtonRightPin; // GPIO pin number for the touch sensor / default 35
 
         private const int DebounceDelay = 30;     // Debounce time
         private const int SingleTouchDelay = 300; // Maximum delay for a single touch
@@ -50,7 +50,9 @@ namespace BedLightESP.Touch
             this._gpioController = gpioController;
             this._settingsManager = settingsManager;
             this._messageService = messageService;
-
+        }
+        public void Initialize()
+        {
             // Initialize pins for left and right buttons
             ButtonLeftPin = _settingsManager.Settings.LeftSidePin;
             ButtonRightPin = _settingsManager.Settings.RightSidePin;
@@ -62,7 +64,6 @@ namespace BedLightESP.Touch
             // Register event handlers for pin value changes
             _gpioController.RegisterCallbackForPinValueChangedEvent(ButtonLeftPin, PinEventTypes.Rising, ButtonLeftPressed);
             _gpioController.RegisterCallbackForPinValueChangedEvent(ButtonRightPin, PinEventTypes.Rising, ButtonRightPressed);
-            _messageService = messageService;
         }
 
         /// <summary>

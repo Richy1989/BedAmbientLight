@@ -20,6 +20,7 @@
   <ItemGroup>
     <Compile Include="Enumerations\LedControllerType.cs" />
     <Compile Include="Helper\DebugHelper.cs" />
+    <Compile Include="Helper\MultiPartFormData.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Messages\IMessage.cs" />
     <Compile Include="Messages\IMessageReceiver.cs" />
@@ -36,6 +37,9 @@
     <Compile Include="LED\APA102Controller.cs" />
     <Compile Include="LED\ILedManager.cs" />
     <Compile Include="LED\ILedController.cs" />
+    <Compile Include="OTA\OtaRunner.cs" />
+    <Compile Include="OTA\OtaUpdateManager.cs" />
+    <Compile Include="StartBedAmbientLight.cs" />
     <Compile Include="Settings\ISettingsManager.cs" />
     <Compile Include="Settings\SpiSettings.cs" />
     <Compile Include="Touch\ITouchManager.cs" />
@@ -130,7 +134,7 @@
       <HintPath>..\packages\nanoFramework.System.Net.1.11.1\lib\System.Net.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http">
-      <HintPath>..\packages\nanoFramework.System.Net.Http.Server.1.5.150\lib\System.Net.Http.dll</HintPath>
+      <HintPath>..\packages\nanoFramework.System.Net.Http.1.5.150\lib\System.Net.Http.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading">
       <HintPath>..\packages\nanoFramework.System.Threading.1.1.32\lib\System.Threading.dll</HintPath>
