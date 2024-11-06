@@ -11,6 +11,8 @@ namespace BedLightESP.Helper
     /// </summary>
     internal static class DebugHelper
     {
+        private static bool _isRunnning = true;
+        private static Thread _memoryDumpTask;
         /// <summary>
         /// Starts a background task that periodically prints memory information if a debugger is attached.
         /// </summary>
@@ -21,14 +23,27 @@ namespace BedLightESP.Helper
 
             nanoFramework.Runtime.Native.GC.EnableGCMessages(true);
 
-            new Thread(() =>
+            _memoryDumpTask = new Thread(() =>
             {
-                while (true)
+                try
                 {
-                    PrintMemory();
-                    Thread.Sleep(TimeSpan.FromMinutes(1));
+                    while (_isRunnning)
+                    {
+                        PrintMemory();
+                        Thread.Sleep(TimeSpan.FromMinutes(1));
+                    }
                 }
-            }).Start();
+                catch (ThreadAbortException)
+                {
+                }
+            });
+            _memoryDumpTask.Start();
+        }
+
+        public static void StopMemoryDumpTask()
+        {
+            _isRunnning = false;
+            _memoryDumpTask?.Abort();
         }
 
         /// <summary>

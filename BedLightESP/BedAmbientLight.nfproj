@@ -37,7 +37,7 @@
     <Compile Include="LED\APA102Controller.cs" />
     <Compile Include="LED\ILedManager.cs" />
     <Compile Include="LED\ILedController.cs" />
-    <Compile Include="OTA\OtaRunner.cs" />
+    <Compile Include="OtaRunner.cs" />
     <Compile Include="OTA\OtaUpdateManager.cs" />
     <Compile Include="StartBedAmbientLight.cs" />
     <Compile Include="Settings\ISettingsManager.cs" />

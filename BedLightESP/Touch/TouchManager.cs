@@ -37,6 +37,9 @@ namespace BedLightESP.Touch
         private bool _isInCheck = false;
         private ButtonPosition _currentClick = ButtonPosition.None;
 
+        // To detect redundant calls
+        private bool _disposedValue;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TouchManager"/> class.
         /// </summary>
@@ -207,6 +210,32 @@ namespace BedLightESP.Touch
         {
             _logger.Debug($"Firing Touch Message. Position: {buttonPosition}, Type: {type}, Time: {dateTime}");
             _messageService.SendMessage(new TouchMessage(buttonPosition, type, dateTime));
+        }
+
+        // Public implementation of Dispose pattern callable by consumers.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        // Protected implementation of Dispose pattern.
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    // Register event handlers for pin value changes
+                    _gpioController.UnregisterCallbackForPinValueChangedEvent(ButtonLeftPin, ButtonLeftPressed);
+                    _gpioController.UnregisterCallbackForPinValueChangedEvent(ButtonRightPin, ButtonRightPressed);
+
+                    _gpioController.ClosePin(ButtonLeftPin);
+                    _gpioController.ClosePin(ButtonRightPin);
+                }
+
+                _disposedValue = true;
+            }
         }
     }
 }

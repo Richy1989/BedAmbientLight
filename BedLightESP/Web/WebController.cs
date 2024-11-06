@@ -10,6 +10,7 @@ using BedLightESP.Enumerations;
 using BedLightESP.Helper;
 using BedLightESP.Logging;
 using BedLightESP.Messages;
+using BedLightESP.OTA;
 using BedLightESP.Settings;
 using BedLightESP.WiFi;
 using nanoFramework.Json;
@@ -100,9 +101,9 @@ namespace BedLightESP.Web
 
             StringBuilder networkEntries = new();
 
-            if (Program.AvailableNetworks != null)
+            if (OtaRunner.AvailableNetworks != null)
             {
-                foreach (var item in Program.AvailableNetworks)
+                foreach (var item in OtaRunner.AvailableNetworks)
                 {
                     networkEntries.Append("<option value = \"");
                     networkEntries.Append(item.Ssid);
@@ -380,24 +381,24 @@ namespace BedLightESP.Web
 
             try
             {
-                string path = WebHelper.ReceiveFileOverHTTP(e.Context.Request, "I:\\");
+                DirectoryInfo otaDir = new(OtaUpdateManager.RootPath);
+                otaDir.Create();
 
-                DirectoryInfo di = new("I:\\");
+                string path = WebHelper.ReceiveFileOverHTTP(e.Context.Request, OtaUpdateManager.RootPath);
 
-                foreach (var file in di.GetFiles())
+                foreach (var file in otaDir.GetFiles())
                 {
                     _logger.Debug($"Found file: {file.Name} size: {file.Length} Byte");
                 }
 
-                FileStream fs = new(path, FileMode.Open, FileAccess.Read);
-                byte[] fileBytes = new byte[fs.Length];
-                fs.Read(fileBytes, 0, fileBytes.Length);
+                e.Context.Response.StatusCode = (int)HttpStatusCode.OK;
+                WebServer.OutPutStream(e.Context.Response, "");
 
-                WebServer.SendFileOverHTTP(e.Context.Response, path, fileBytes);
-
-                //e.Context.Response.StatusCode = (int)HttpStatusCode.OK;
-                //WebServer.OutPutStream(e.Context.Response, "");
-
+                new Thread(() =>
+                {
+                    _logger.Info("Starting OTA update process.");
+                    OtaUpdateManager.Update();
+                }).Start();
             }
             catch (Exception ex)
             {

@@ -1,9 +1,11 @@
-﻿namespace BedLightESP.Touch
+﻿using System;
+
+namespace BedLightESP.Touch
 {
     /// <summary>
     /// Interface for managing touch functionality.
     /// </summary>
-    internal interface ITouchManager
+    internal interface ITouchManager : IDisposable
     {
         /// <summary>
         /// Initializes the touch manager.

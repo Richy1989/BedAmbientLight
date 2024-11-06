@@ -3,16 +3,15 @@ using System.Device.Gpio;
 using System.Device.Wifi;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Threading;
 using BedLightESP.Helper;
 using BedLightESP.LED;
 using BedLightESP.Logging;
-using BedLightESP.Messages;
 using BedLightESP.Settings;
 using BedLightESP.Touch;
 using BedLightESP.Web;
 using BedLightESP.WiFi;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace BedLightESP
 {
@@ -32,14 +31,26 @@ namespace BedLightESP
         private readonly ILogger _logger;
         private readonly IWebManager _server;
         private readonly GpioController _gpio;
-        private readonly ManualResetEvent manualResetEvent;
         private  WifiAdapter _wifi;
         private int _connectedCount = 0;
 
-
-        public StartBedAmbientLight(ILogger logger, IWebManager webManager, ITouchManager touchManager, ISettingsManager settingsManager, ILedManager ledManager, GpioController gpioController)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StartBedAmbientLight"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for logging messages.</param>
+        /// <param name="webManager">The web manager instance for managing the web server.</param>
+        /// <param name="touchManager">The touch manager instance for managing touch functionality.</param>
+        /// <param name="settingsManager">The settings manager instance for managing application settings.</param>
+        /// <param name="ledManager">The LED manager instance for managing LED operations.</param>
+        /// <param name="gpioController">The GPIO controller instance for managing GPIO operations.</param>
+        public StartBedAmbientLight(
+            ILogger logger,
+            IWebManager webManager,
+            ITouchManager touchManager,
+            ISettingsManager settingsManager,
+            ILedManager ledManager,
+            GpioController gpioController)
         {
-            manualResetEvent = new ManualResetEvent(false);
             _logger = logger;
             _settingsManager = settingsManager;
             _gpio = gpioController;
@@ -48,14 +59,22 @@ namespace BedLightESP
             _server = webManager;
         }
 
+        /// <summary>
+        /// Starts the Bed Ambient Light application.
+        /// </summary>
+        /// <remarks>
+        /// This method initializes the necessary components, sets up event handlers, and starts a Wi-Fi scan.
+        /// If the Wi-Fi scan fails, it attempts to connect and start the web server.
+        /// </remarks>
         public void Start()
         {
-            Debug.WriteLine("Hello from Bed Ambient Light!");
-
+            Debug.WriteLine($"Time: {new DateTime()} - Hello from Bed Ambient Light!");
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            Debug.WriteLine($"Version: {version}");
             DebugHelper.StartMemoryDumpTask();
 
+            // Load settings, initialize touch manager, and create LED device
             _settingsManager.LoadSettings();
-
             _touchManager.Initialize();
 
             //For Debugging only use 10 LEDs
@@ -92,12 +111,22 @@ namespace BedLightESP
             }
         }
 
+        /// <summary>
+        /// Stops the Bed Ambient Light application.
+        /// </summary>
         public void Stop()
         {
             NetworkChange.NetworkAPStationChanged -= NetworkChange_NetworkAPStationChanged;
             _wifi.AvailableNetworksChanged -= Wifi_AvailableNetworksChanged;
-            _server.Stop();
-            manualResetEvent.Set();
+
+            _wifi.Disconnect();
+
+            _ledManager?.Dispose();
+            _touchManager?.Dispose();
+            _gpio?.ClosePin(_settingsManager.Settings.DebugPin);
+            _server?.Stop();
+
+            DebugHelper.StopMemoryDumpTask();
         }
 
         /// <summary>

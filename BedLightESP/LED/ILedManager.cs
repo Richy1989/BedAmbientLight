@@ -1,9 +1,10 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using BedLightESP.Enumerations;
 
 namespace BedLightESP.LED
 {
-    internal interface ILedManager
+    internal interface ILedManager : IDisposable
     {
         /// <summary>
         /// Creates the LED device.

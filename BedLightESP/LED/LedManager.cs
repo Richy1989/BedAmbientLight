@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using BedLightESP.Enumerations;
 using BedLightESP.Helper;
 using BedLightESP.Messages;
@@ -17,6 +18,9 @@ namespace BedLightESP.LED
         private bool leftIsOn = false;
         private bool rightIsOn = false;
         private bool wholeIsOn = false;
+
+        // To detect redundant calls
+        private bool _disposedValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LEDManager"/> class.
@@ -190,6 +194,28 @@ namespace BedLightESP.LED
             {
                 ledController.IncreaseBrightness();
                 ledController.Flush();
+            }
+        }
+
+        // Public implementation of Dispose pattern callable by consumers.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        // Protected implementation of Dispose pattern.
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    ledController?.Dispose();
+                    ledController = null;
+                }
+
+                _disposedValue = true;
             }
         }
     }

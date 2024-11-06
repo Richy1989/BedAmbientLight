@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using BedLightESP.Logging;
 using nanoFramework.WebServer;
@@ -35,7 +34,6 @@ namespace BedLightESP.Web
         /// </summary>
         public void Start()
         {
-
             if (IsRunning) return;
 
             runner = new Thread(() =>
@@ -48,14 +46,14 @@ namespace BedLightESP.Web
                     IsRunning = true;
                     Thread.Sleep(Timeout.Infinite);
                 }
-                catch (ThreadAbortException)
+                catch (ThreadAbortException ex)
                 {
+                    _logger.Debug($"Web server stopped: {ex.Message}");
                 }
             });
 
             runner.Start();
         }
-
 
         /// <summary>
         /// Stops the web server if it is running.
@@ -67,6 +65,9 @@ namespace BedLightESP.Web
         {
             _logger.Debug("Stopping web server.");
             server.Stop();
+            server.Dispose();
+            server = null;
+
             IsRunning = false;
             runner?.Abort();
         }
