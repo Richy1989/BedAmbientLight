@@ -75,18 +75,34 @@ namespace BedLightESP.WiFi
         }
 
         /// <summary>
-        /// Enable the Wireless station interface for scanning of networks.
+        /// Enables the wireless station interface for network scanning if it is currently disabled.
         /// </summary>
+        /// <returns>True if the interface was re-enabled (caller should wait before scanning);
+        /// false if it was already active and no change was needed.</returns>
         public static bool EnableForScan()
         {
             Wireless80211Configuration wconf = GetConfiguration();
 
-            if (wconf.Options == Wireless80211Configuration.ConfigurationOptions.Disable)
+            // The station interface can be left in several "off" states depending on how it
+            // was last disabled:
+            //   - ConfigurationOptions.Disable  : explicitly disabled
+            //   - None                           : cleared / never set
+            //   - None | SmartConfig             : left over after WirelessAP.SetWifiAp() calls
+            //                                      Wireless80211.Disable(), which sets this combo
+            // All three mean the interface is not actively scanning, so enable it in all cases.
+            bool isDisabled =
+                wconf.Options == Wireless80211Configuration.ConfigurationOptions.Disable ||
+                wconf.Options == Wireless80211Configuration.ConfigurationOptions.None ||
+                wconf.Options == (Wireless80211Configuration.ConfigurationOptions.None |
+                                  Wireless80211Configuration.ConfigurationOptions.SmartConfig);
+
+            if (isDisabled)
             {
                 wconf.Options = Wireless80211Configuration.ConfigurationOptions.Enable;
                 wconf.SaveConfiguration();
                 return true;
             }
+
             return false;
         }
 

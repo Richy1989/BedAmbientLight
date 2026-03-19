@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.NetworkInformation;
+using System.Threading;
 using BedLightESP.Logging;
 using Iot.Device.DhcpServer;
 using nanoFramework.Runtime.Native;
@@ -24,33 +25,53 @@ namespace BedLightESP.WiFi
         /// <summary>
         /// Sets the configuration for the wireless access point.
         /// </summary>
+        /// <returns>True if the AP and DHCP server started successfully; false otherwise.</returns>
         public static bool SetWifiAp()
         {
+            // Disable station mode so the AP interface gets full control of the radio.
             Wireless80211.Disable();
+
             if (Setup() == false)
             {
-                // Reboot device to Activate Access Point on restart
-                Logger.Instance?.Warning($"Setup Soft AP, Rebooting device");
+                // AP configuration was just written for the first time (or changed).
+                // A reboot is required for the nanoFramework network stack to activate
+                // the new AP settings — AutoStart will bring it up on the next boot.
+                Logger.Instance?.Warning("Soft AP configuration saved — rebooting to activate.");
                 Power.RebootDevice();
             }
 
+            // The AP interface is now active. Start the DHCP server so connecting
+            // clients receive an IP address automatically.
             var dhcpServer = new DhcpServer
             {
                 CaptivePortalUrl = $"http://{SoftApIP}"
             };
-            
-            var dhcpInitResult = dhcpServer.Start(IPAddress.Parse(SoftApIP), new IPAddress(new byte[] { 255, 255, 255, 0 }));
-            
+
+            // Retry DHCP initialisation a few times before giving up.
+            // On a freshly flashed device or after a rapid restart, the network stack
+            // may not be fully ready on the first attempt.
+            const int maxDhcpRetries = 3;
+            bool dhcpInitResult = false;
+
+            for (int attempt = 1; attempt <= maxDhcpRetries; attempt++)
+            {
+                dhcpInitResult = dhcpServer.Start(IPAddress.Parse(SoftApIP), new IPAddress(new byte[] { 255, 255, 255, 0 }));
+
+                if (dhcpInitResult)
+                    break;
+
+                Logger.Instance?.Warning($"DHCP start attempt {attempt}/{maxDhcpRetries} failed — retrying...");
+                Thread.Sleep(500);
+            }
+
             if (!dhcpInitResult)
             {
-                Logger.Instance?.Error($"Error initializing DHCP server.");
-                // This happens after a very freshly flashed device
+                // All retries exhausted — reboot and try again from scratch.
+                Logger.Instance?.Error($"DHCP server failed to start after {maxDhcpRetries} attempts — rebooting.");
                 Power.RebootDevice();
             }
 
-            Logger.Instance?.Info($"Running Soft AP, waiting for client to connect");
-            Logger.Instance?.Info($"Soft AP IP address: {GetIP()} and SSID: {SoftApSsid}");
-            Logger.Instance?.Info($"DHCP Init Result: {dhcpInitResult}");
+            Logger.Instance?.Info($"Soft AP running — SSID: {SoftApSsid}, IP: {GetIP()}");
             return dhcpInitResult;
         }
 
@@ -67,15 +88,21 @@ namespace BedLightESP.WiFi
         /// <summary>
         /// Set-up the Wireless AP settings, enable and save
         /// </summary>
-        /// <returns>True if already set-up</returns>
+        /// <returns>True if the AP is already configured and active; false if configuration
+        /// was just written (caller must reboot to activate).</returns>
         public static bool Setup()
         {
             NetworkInterface ni = GetInterface();
             WirelessAPConfiguration wapconf = GetConfiguration();
 
-            // Check if already Enabled and return true
+            // Check whether the AP is already configured correctly.
+            // Note: the IPv4Address is intentionally NOT checked here because right after a
+            // reboot with AutoStart the static IP may not yet be assigned by the time this
+            // runs, which would cause a false negative and trigger an unnecessary reboot loop.
+            // The Options flags and SSID are sufficient to confirm the configuration is active.
             if (wapconf.Options == (WirelessAPConfiguration.ConfigurationOptions.Enable |
-                                    WirelessAPConfiguration.ConfigurationOptions.AutoStart) && ni.IPv4Address == SoftApIP && wapconf.Ssid == SoftApSsid)
+                                    WirelessAPConfiguration.ConfigurationOptions.AutoStart)
+                && wapconf.Ssid == SoftApSsid)
             {
                 return true;
             }

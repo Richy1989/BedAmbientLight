@@ -5,7 +5,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-using System.Web;
 using BedLightESP.Enumerations;
 using BedLightESP.Helper;
 using BedLightESP.Logging;
@@ -14,6 +13,7 @@ using BedLightESP.OTA;
 using BedLightESP.Settings;
 using BedLightESP.WiFi;
 using nanoFramework.Json;
+using nanoFramework.Runtime.Native;
 using nanoFramework.WebServer;
 
 namespace BedLightESP.Web
@@ -26,6 +26,15 @@ namespace BedLightESP.Web
         private readonly ISettingsManager _settingsManager;
         private readonly IMessageService _messageService;
         private readonly ILogger _logger;
+
+        // The stylesheet bytes are cached on first request so the resource is read once.
+        private static byte[] _cachedStyleSheetBytes = null;
+
+        // The main page is pre-parsed into alternating segments:
+        //   byte[]  → static HTML bytes written directly to the socket
+        //   string  → placeholder key whose encoded value is substituted at render time
+        // This avoids building a full result string on every request.
+        private static ArrayList _pageTokens = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WebController"/> class.
@@ -59,10 +68,11 @@ namespace BedLightESP.Web
         {
             e.Context.Response.ContentType = "text/css";
 
-            var bytes = Resources.GetBytes(Resources.BinaryResources.styleSheet);
-            string page = HttpUtility.UrlDecode(Encoding.UTF8.GetString(bytes, 0, bytes.Length));
+            if (_cachedStyleSheetBytes == null)
+                _cachedStyleSheetBytes = Resources.GetBytes(Resources.BinaryResources.styleSheet);
 
-            WebServer.OutPutStream(e.Context.Response, page);
+            e.Context.Response.ContentLength64 = _cachedStyleSheetBytes.Length;
+            e.Context.Response.OutputStream.Write(_cachedStyleSheetBytes, 0, _cachedStyleSheetBytes.Length);
         }
 
         /// <summary>
@@ -84,63 +94,160 @@ namespace BedLightESP.Web
         {
             e.Context.Response.ContentType = "text/html; charset=utf-8";
 
-            string returnPage;
-            try
+            if (_pageTokens == null && !TryParsePageTemplate())
             {
-                var bytes = Resources.GetBytes(Resources.BinaryResources.mainPage);
-                string page = HttpUtility.UrlDecode(Encoding.UTF8.GetString(Resources.GetBytes(Resources.BinaryResources.mainPage), 0, bytes.Length));
-
-                returnPage = StringHelper.ReplaceMessage(page, message, "message");
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"Error loading default page. {ex.Message}");
+                _logger.Error("Error loading default page.");
                 WebServer.OutputHttpCode(e.Context.Response, HttpStatusCode.OK);
                 return;
             }
 
-            StringBuilder networkEntries = new();
-
-            if (OtaRunner.AvailableNetworks != null)
+            StringBuilder ssidEntries = new();
+            if (StartBedAmbientLight.AvailableNetworks != null)
             {
-                foreach (var item in OtaRunner.AvailableNetworks)
+                foreach (var item in StartBedAmbientLight.AvailableNetworks)
                 {
-                    networkEntries.Append("<option value = \"");
-                    networkEntries.Append(item.Ssid);
-                    networkEntries.Append("\">");
-                    networkEntries.Append(item.Ssid);
-                    networkEntries.Append("</option>");
+                    ssidEntries.Append("<option value=\"");
+                    ssidEntries.Append(item.Ssid);
+                    ssidEntries.Append("\">");
+                    ssidEntries.Append(item.Ssid);
+                    ssidEntries.Append("</option>");
                 }
             }
 
-            returnPage = StringHelper.ReplaceMessage(returnPage, networkEntries.ToString(), "ssid");
-
-            networkEntries.Clear();
-
             var settings = _settingsManager.Settings;
 
-            returnPage = StringHelper.ReplaceMessage(returnPage, _settingsManager.Settings.DefaultColor, "default_color");
-
-            returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttServer, "mqttServer");
-            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.MqttPort}", "mqttPort");
-            returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttUsername, "mqttUsername");
-            returnPage = StringHelper.ReplaceMessage(returnPage, settings.MqttPassword, "mqttPassword");
-            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.LedCount}", "ledCount");
-            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.SpiSettings.MosiPin}", "mosi");
-            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.SpiSettings.MisoPin}", "miso");
-            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.SpiSettings.ClkPin}", "clk");
-            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.LeftSidePin}", "leftpin");
-            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.RightSidePin}", "rightpin");
-            returnPage = StringHelper.ReplaceMessage(returnPage, $"{settings.DebugPin}", "debugpin");
+            // Pre-encode all substitution values to UTF-8 bytes once.
+            // Each value is small (a few bytes), so this is cheap.
+            Hashtable valueBytes = new Hashtable();
+            valueBytes["message"]       = Encode(message);
+            valueBytes["ssid"]          = Encode(ssidEntries.ToString());
+            valueBytes["default_color"] = Encode(settings.DefaultColor);
+            valueBytes["mqttServer"]    = Encode(settings.MqttServer);
+            valueBytes["mqttPort"]      = Encode(settings.MqttPort.ToString());
+            valueBytes["mqttUsername"]  = Encode(settings.MqttUsername);
+            valueBytes["mqttPassword"]  = Encode(settings.MqttPassword);
+            valueBytes["ledCount"]      = Encode(settings.LedCount.ToString());
+            valueBytes["mosi"]          = Encode(settings.SpiSettings.MosiPin.ToString());
+            valueBytes["miso"]          = Encode(settings.SpiSettings.MisoPin.ToString());
+            valueBytes["clk"]           = Encode(settings.SpiSettings.ClkPin.ToString());
+            valueBytes["leftpin"]       = Encode(settings.LeftSidePin.ToString());
+            valueBytes["rightpin"]      = Encode(settings.RightSidePin.ToString());
+            valueBytes["debugpin"]      = Encode(settings.DebugPin.ToString());
 
             try
             {
-                WebServer.OutPutStream(e.Context.Response, returnPage);
+                // Compute Content-Length by summing segment sizes.
+                int contentLength = 0;
+                for (int i = 0; i < _pageTokens.Count; i++)
+                {
+                    object token = _pageTokens[i];
+                    if (token is byte[])
+                        contentLength += ((byte[])token).Length;
+                    else if (token is string && valueBytes.Contains((string)token))
+                        contentLength += ((byte[])valueBytes[(string)token]).Length;
+                }
+
+                e.Context.Response.ContentLength64 = contentLength;
+
+                // Stream each segment directly to the socket — no full result string built.
+                var stream = e.Context.Response.OutputStream;
+                for (int i = 0; i < _pageTokens.Count; i++)
+                {
+                    object token = _pageTokens[i];
+                    if (token is byte[])
+                    {
+                        byte[] seg = (byte[])token;
+                        stream.Write(seg, 0, seg.Length);
+                    }
+                    else if (token is string)
+                    {
+                        string key = (string)token;
+                        if (valueBytes.Contains(key))
+                        {
+                            byte[] seg = (byte[])valueBytes[key];
+                            stream.Write(seg, 0, seg.Length);
+                        }
+                    }
+                }
+
+                stream.Flush();
             }
             catch (Exception ex)
             {
                 _logger.Error($"Error sending default page. {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Parses the main page resource into pre-encoded byte segments and placeholder keys.
+        /// Called once on first request; the full template string is freed when this returns.
+        /// </summary>
+        private static bool TryParsePageTemplate()
+        {
+            try
+            {
+                var rawBytes = Resources.GetBytes(Resources.BinaryResources.mainPage);
+                string template = Encoding.UTF8.GetString(rawBytes, 0, rawBytes.Length);
+
+                var tokens = new ArrayList();
+                int start = 0;
+                int len = template.Length;
+
+                while (start < len)
+                {
+                    int open = template.IndexOf("{", start);
+                    if (open < 0)
+                    {
+                        tokens.Add(Encoding.UTF8.GetBytes(template.Substring(start)));
+                        break;
+                    }
+
+                    int close = template.IndexOf("}", open + 1);
+                    if (close < 0)
+                    {
+                        tokens.Add(Encoding.UTF8.GetBytes(template.Substring(start)));
+                        break;
+                    }
+
+                    string key = template.Substring(open + 1, close - open - 1);
+
+                    if (open > start)
+                        tokens.Add(Encoding.UTF8.GetBytes(template.Substring(start, open - start)));
+
+                    if (IsSimpleKey(key))
+                        tokens.Add(key);   // placeholder — resolved at render time
+                    else
+                        tokens.Add(Encoding.UTF8.GetBytes(template.Substring(open, close - open + 1)));
+
+                    start = close + 1;
+                }
+
+                _pageTokens = tokens;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"TryParsePageTemplate failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        private static bool IsSimpleKey(string key)
+        {
+            if (key.Length == 0) return false;
+            for (int i = 0; i < key.Length; i++)
+            {
+                char c = key[i];
+                if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'))
+                    return false;
+            }
+            return true;
+        }
+
+        private static byte[] Encode(string s)
+        {
+            if (s == null || s.Length == 0) return new byte[0];
+            return Encoding.UTF8.GetBytes(s);
         }
 
         /// <summary>
@@ -178,8 +285,16 @@ namespace BedLightESP.Web
                 return;
             }
 
-            _logger.Info($"Wireless parameters SSID:{ssid} PASSWORD:{password}");
-            PrintDefaultPage(e, $"Set wireless parameters SSID: {ssid} PASSWORD: {password}");
+            _logger.Info($"WiFi credentials saved for SSID: {ssid} — rebooting.");
+            PrintDefaultPage(e, $"Credentials saved for '{ssid}'. Device is rebooting and will connect automatically...");
+
+            // Credentials are saved to flash. Reboot so the device starts cleanly in
+            // station mode instead of trying a live AP→STA switch, which fails on ESP32.
+            new Thread(() =>
+            {
+                Thread.Sleep(2000);
+                Power.RebootDevice();
+            }).Start();
         }
 
         /// <summary>
@@ -364,9 +479,9 @@ namespace BedLightESP.Web
             };
 
             e.Context.Response.ContentType = "application/json";
-            var jsonResponse = JsonConvert.SerializeObject(logData);
-
-            WebServer.OutPutStream(e.Context.Response, jsonResponse);
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData));
+            e.Context.Response.ContentLength64 = jsonBytes.Length;
+            e.Context.Response.OutputStream.Write(jsonBytes, 0, jsonBytes.Length);
         }
 
         /// <summary>
@@ -392,7 +507,7 @@ namespace BedLightESP.Web
                 }
 
                 e.Context.Response.StatusCode = (int)HttpStatusCode.OK;
-                WebServer.OutPutStream(e.Context.Response, "");
+                e.Context.Response.ContentLength64 = 0;
 
                 new Thread(() =>
                 {

@@ -28,6 +28,9 @@ namespace BedLightESP.LED
         /// <summary>Represents the SPI device.</summary>
         private readonly SpiDevice spiDevice;
 
+        /// <summary>Pre-allocated SPI transmit buffer, reused on every Flush.</summary>
+        private readonly byte[] _buffer;
+
         /// <summary>Indicates whether the object has been disposed.</summary>
         private bool disposed;
 
@@ -55,6 +58,9 @@ namespace BedLightESP.LED
             endFrameSize = (int)Math.Ceiling((((double)LedCount) - 1.0) / 16.0);
 
             this.spiDevice = spiDevice;
+
+            // Pre-allocate once — start frame (4 bytes) + pixel data + end frame, all initialised to 0x00
+            _buffer = new byte[(LedCount + 1) * 4 + endFrameSize];
         }
 
         /// <summary>
@@ -62,24 +68,12 @@ namespace BedLightESP.LED
         /// </summary>
         public void Flush()
         {
-            var buffer = new byte[(LedCount + 1) * 4 + endFrameSize];
-
-            // Insert Start Frame
-            for (int i = 0; i < 4; i++)
-            {
-                buffer[i] = 0x00;
-            }
-
-            // Insert End Frame
-            for (int i = (LedCount + 1) * 4; i < ((LedCount + 1) * 4) + endFrameSize; i++)
-            {
-                buffer[i] = 0x00;
-            }
+            // Start frame (indices 0-3) and end frame are already 0x00 from initialisation — no need to re-write them.
 
             // Insert Pixel Data
             for (int i = 0; i < Pixels.Length; i++)
             {
-                SpanByte pixel = buffer;
+                SpanByte pixel = _buffer;
                 pixel = pixel.Slice((i + 1) * 4);
                 pixel[0] = (byte)((GlobalBrightness >> 3) | 0b11100000); // global brightness (alpha)
                 pixel[1] = Pixels[i].B; // blue
@@ -90,7 +84,7 @@ namespace BedLightESP.LED
             // Send data to the LED strip
             try
             {
-                spiDevice.Write(buffer);
+                spiDevice.Write(_buffer);
             }
             catch (Exception ex)
             {

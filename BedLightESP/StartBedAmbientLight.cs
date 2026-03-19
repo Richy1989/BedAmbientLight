@@ -75,14 +75,16 @@ namespace BedLightESP
 
             // Load settings, initialize touch manager, and create LED device
             _settingsManager.LoadSettings();
-            _touchManager.Initialize();
+            //_touchManager.Initialize();
 
+            /*
             //For Debugging only use 10 LEDs
             _gpio.OpenPin(_settingsManager.Settings.DebugPin, PinMode.Input);
             if (_gpio.Read(_settingsManager.Settings.DebugPin) == PinValue.High)
                 _ledManager.CreateLEDDevice(10);
             else
                 _ledManager.CreateLEDDevice(_settingsManager.Settings.LedCount);
+            */
 
             _wifi = WifiAdapter.FindAllAdapters()[0];
 
@@ -92,12 +94,15 @@ namespace BedLightESP
             // Set up the AvailableNetworksChanged event to pick up when scan has completed
             _wifi.AvailableNetworksChanged += Wifi_AvailableNetworksChanged;
 
-            // Start WiFi scan
+            // Always scan so the SSID drop-down is populated in AP mode for first-time setup.
+            // When scan completes, Wifi_AvailableNetworksChanged populates AvailableNetworks
+            // and calls ConnectAndStartWebServer(), which will go to AP mode if no credentials exist.
             try
             {
                 _logger.Info("Starting Wi-Fi scan");
                 if (Wireless80211.EnableForScan())
                 {
+                    // Give the WiFi interface time to fully initialise before scanning.
                     _logger.Info("Sleeping 4 sec. to ensure wifi interface is enabled.");
                     Thread.Sleep(4000);
                 }
@@ -105,8 +110,9 @@ namespace BedLightESP
             }
             catch (Exception ex)
             {
+                // Scan failed — try to bring WiFi or AP up anyway so the device is not
+                // left unreachable.
                 _logger.Error($"Failure starting a scan operation: {ex.Message}");
-                //Try to bring the Wifi or AP up anyways
                 ConnectAndStartWebServer();
             }
         }
@@ -143,6 +149,9 @@ namespace BedLightESP
             // Start WiFi Manager
             if (Wireless80211.IsEnabled() && !forceAP)
             {
+                // Station credentials are present — try to connect to the saved network.
+                // If the connection fails, ConnectOrSetAp() will automatically fall back
+                // to AP mode internally.
                 _logger.Info("Wireless80211 is enabled");
                 Wireless80211.ConnectOrSetAp();
                 if (!_server.IsRunning)
@@ -150,8 +159,16 @@ namespace BedLightESP
             }
             else
             {
-                _logger.Info("Wireless80211 is not enabled");
-                WirelessAP.SetWifiAp();
+                // No station credentials — start in Access Point mode so the user can
+                // reach the web UI to configure WiFi.
+                _logger.Info("Wireless80211 is not enabled — starting AP mode.");
+                bool apStarted = WirelessAP.SetWifiAp();
+
+                // Start the web server immediately once the AP and DHCP server are up.
+                // The NetworkAPStationChanged event also starts it when the first client
+                // connects, so both paths are covered for reliability.
+                if (apStarted && !_server.IsRunning)
+                    _server.Start();
             }
         }
 

@@ -177,12 +177,26 @@
         var btn = document.getElementById("logButton");
         var span = document.getElementsByClassName("close")[0];
 
+        function escapeHtml(s) {
+            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        function logLevelClass(msg) {
+            if (msg.indexOf('[ERROR]')   !== -1) return 'log-error';
+            if (msg.indexOf('[WARNING]') !== -1) return 'log-warning';
+            if (msg.indexOf('[INFO]')    !== -1) return 'log-info';
+            return 'log-debug';
+        }
+
         btn.onclick = function () {
             fetch('/get_logs')
                 .then(response => response.json())
                 .then(data => {
-                    var logMessages = document.getElementById("logMessages");
-                    logMessages.innerHTML = data.Logs.join('<br>');
+                    var html = '';
+                    data.Logs.forEach(function (msg) {
+                        html += '<div class="log-entry ' + logLevelClass(msg) + '">' + escapeHtml(msg) + '</div>';
+                    });
+                    document.getElementById("logMessages").innerHTML = html;
                     modal.style.display = "block";
                 });
         }

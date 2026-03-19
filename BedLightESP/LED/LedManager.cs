@@ -139,15 +139,36 @@ namespace BedLightESP.LED
         /// <param name="color">The color.</param>
         public void TurnOnLEDStripOneColor(LedStripSide side, Color color)
         {
-            Color[] colors = new Color[ledController.Pixels.Length];
-
-            //populate colors with color
-            for (var i = 0; i < ledController.Pixels.Length; i++)
+            if (wholeIsOn && side != LedStripSide.Whole)
             {
-                colors[i] = color;
+                TurnOffLEDStrip();
+                return;
             }
 
-            TurnOnLEDStripArrayColor(side, colors);
+            int half = ledController.Pixels.Length / 2;
+            for (var i = 0; i < ledController.Pixels.Length; i++)
+            {
+                if (side == LedStripSide.Left)
+                {
+                    if (i < half)
+                        ledController.Pixels[i] = !leftIsOn ? color : Color.Black;
+                }
+                else if (side == LedStripSide.Right)
+                {
+                    if (i >= half)
+                        ledController.Pixels[i] = !rightIsOn ? color : Color.Black;
+                }
+                else if (side == LedStripSide.Whole)
+                {
+                    ledController.Pixels[i] = color;
+                    wholeIsOn = true;
+                }
+            }
+
+            if (side == LedStripSide.Left) leftIsOn = !leftIsOn;
+            else if (side == LedStripSide.Right) rightIsOn = !rightIsOn;
+
+            ledController.Flush();
         }
 
         /// <summary>

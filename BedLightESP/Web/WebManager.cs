@@ -36,6 +36,11 @@ namespace BedLightESP.Web
         {
             if (IsRunning) return;
 
+            // Claim the slot synchronously before the thread starts so that a second
+            // concurrent caller sees IsRunning = true and returns immediately, preventing
+            // a double-bind on port 80.
+            IsRunning = true;
+
             runner = new Thread(() =>
             {
                 try
@@ -43,12 +48,17 @@ namespace BedLightESP.Web
                     server = new(80, HttpProtocol.Http, new Type[] { typeof(WebController) }, ServiceProvider);
                     server.Start();
                     _logger.Debug("Web server started.");
-                    IsRunning = true;
                     Thread.Sleep(Timeout.Infinite);
                 }
                 catch (ThreadAbortException ex)
                 {
                     _logger.Debug($"Web server stopped: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    // Startup failed — release the flag so Start() can be retried.
+                    _logger.Error($"Web server failed to start: {ex.Message}");
+                    IsRunning = false;
                 }
             });
 

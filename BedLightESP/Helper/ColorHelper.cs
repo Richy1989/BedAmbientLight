@@ -8,6 +8,7 @@ namespace BedLightESP.Helper
     /// </summary>
     internal class ColorHelper
     {
+        private static readonly Random _random = new Random();
         /// <summary>
         /// Converts a <see cref="Color"/> to its hexadecimal string representation.
         /// </summary>
@@ -51,7 +52,7 @@ namespace BedLightESP.Helper
         /// <returns>An array of <see cref="Color"/> representing the gradient.</returns>
         public static Color[] GenerateRandomColorGradient(int length)
         {
-            Random random = new();
+            Random random = _random;
 
             // Generate two random colors
             Color startColor = Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
@@ -82,7 +83,7 @@ namespace BedLightESP.Helper
         /// <returns>An array of <see cref="Color"/> representing the gradient.</returns>
         public static Color[] CalculateRandomGradientHUE(int size)
         {
-            Random random = new();
+            Random random = _random;
 
             int number1 = random.Next(361);
             int number2 = random.Next(361);
